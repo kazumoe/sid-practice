@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="ltg-practice" content="1">
+<title>練習完了｜れんしゅうチケット</title>
+<link rel="stylesheet" href="style.css">
+<script src="common.js"></script>
+</head>
+<body>
+<div class="ph">れんしゅうチケット<small>練習用の架空のサイト</small></div>
+<main>
+  <h1>練習完了（申込完了の画面）</h1>
+  <p>発売中のページを開いてから、ここまで</p>
+  <p class="big" id="total"></p>
+  <h2>ステップごとの時間</h2>
+  <table class="sum" id="steps"></table>
+  <button id="again" class="Button -primary">同じ設定でもう一度</button>
+  <a class="Button" href="index.html">設定を変える</a>
+</main>
+<script>
+(() => {
+  const marks = P.get('marks', []);
+  const start = P.get('flowStart', 0);
+  P.mark('完了');
+  const all = P.get('marks', []);
+  const end = all[all.length - 1].t;
+  document.getElementById('total').textContent = start ? `${((end - start) / 1000).toFixed(1)} 秒` : '—';
+  const tb = document.getElementById('steps');
+  let prev = start;
+  for (const m of all) {
+    const tr = document.createElement('tr');
+    const since = start ? `＋${((m.t - start) / 1000).toFixed(1)}秒` : '';
+    const gap = prev ? `（${((m.t - prev) / 1000).toFixed(1)}秒）` : '';
+    tr.innerHTML = `<td></td><td style="white-space:nowrap">${since}<br><small>${gap}</small></td>`;
+    tr.firstChild.textContent = m.name;
+    tb.appendChild(tr);
+    prev = m.t;
+  }
+  document.getElementById('again').addEventListener('click', () => {
+    const cfg = P.cfg();
+    cfg.startAt = Date.now() + cfg.delaySec * 1000;
+    P.set('cfg', cfg);
+    P.reset();
+    location.href = 'order.html?gLcode=99999';
+  });
+})();
+</script>
+</body>
+</html>

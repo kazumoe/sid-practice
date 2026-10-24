@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="ltg-practice" content="1">
+<title>クレジット情報入力（練習）｜れんしゅうチケット</title>
+<link rel="stylesheet" href="style.css">
+<script src="common.js"></script>
+</head>
+<body>
+<div class="ph">れんしゅうチケット<small>練習用の架空のサイト</small></div>
+<main>
+  <h1>クレジット情報入力</h1>
+  <p class="note">本番と同じように入力できます（Safariの自動入力も本番と同じように使えます）。入力した内容はこのスマホの画面の中だけで使い、どこにも送信・保存しません（次のページへ進むときや、ページを離れるときに消します）。<br>※ここで「お申込を確定する」を押しても、本物の申し込みや支払いは起きません。</p>
+
+  <label class="choice registered-card"><input type="radio" name="CREDIT_CARD_USE_TYPE" id="CREDIT_CARD_USE_TYPE-0" value="0">登録済みカード(Registered card)</label>
+  <div id="regBox" style="display:none"></div>
+
+  <label class="choice"><input type="radio" name="CREDIT_CARD_USE_TYPE" id="CREDIT_CARD_USE_TYPE-1" value="1">別のカード(Another card)</label>
+  <div id="otherBox" style="display:none">
+    <p>カード番号<br><input type="text" name="CARD_NO" id="CARD_NO" inputmode="numeric"></p>
+    <p>カード名義人<br><input type="text" name="3DS_NAME"></p>
+    <p>有効期限<br>
+      <select name="EXPIRE_MONTH" id="EXPIRE_MONTH" style="width:45%"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option></select>
+      <select name="EXPIRE_YR" id="EXPIRE_YR" style="width:45%"><option>2026</option><option>2027</option><option>2028</option><option>2029</option><option>2030</option><option>2031</option><option>2032</option><option>2033</option><option>2034</option><option>2035</option><option>2036</option></select></p>
+    <p>セキュリティコード<br><input type="password" name="SECURITY_CD" id="SECURITY_CD" inputmode="numeric" autocomplete="new-password"></p>
+  </div>
+
+  <p class="err" id="err"></p>
+  <button type="button" name="NEXT_BUTTON" id="NEXT_BUTTON" class="Button -primary">お申込を確定する(Confirm)</button>
+  <button type="button" name="BACK_BUTTON" id="BACK_BUTTON" class="Button">戻る(Back)</button>
+</main>
+<script>
+(() => {
+  const reg = document.getElementById('CREDIT_CARD_USE_TYPE-0');
+  const other = document.getElementById('CREDIT_CARD_USE_TYPE-1');
+  const regBox = document.getElementById('regBox');
+  const otherBox = document.getElementById('otherBox');
+  const sync = () => { regBox.style.display = reg.checked ? '' : 'none'; otherBox.style.display = other.checked ? '' : 'none'; };
+  reg.addEventListener('change', sync);
+  other.addEventListener('change', sync);
+  // 本物と同じく、登録済みカードの欄はページを開いた後に読み込まれ、サイトが自動で「登録済みカード」を選ぶ
+  setTimeout(() => {
+    regBox.innerHTML =
+      '<p>カード名義人<br><input type="text" name="3DS_NAME"></p>' +
+      '<p>セキュリティコード<br><input type="password" name="SECURITY_CD_TRUST_TEMP" id="SECURITY_CD_TRUST_TEMP" inputmode="numeric" autocomplete="new-password"></p>';
+    reg.click();
+    sync();
+  }, 300);
+
+  document.getElementById('NEXT_BUTTON').addEventListener('click', () => {
+    const err = document.getElementById('err');
+    const box = reg.checked ? regBox : otherBox;
+    const empty = [...box.querySelectorAll('input')].some((i) => !i.value);
+    if (!reg.checked && !other.checked) return (err.textContent = 'カードを選んでください。');
+    if (empty) return (err.textContent = '未入力の欄があります。');
+    // 入力内容は使わずに捨てる
+    document.querySelectorAll('input[type=text], input[type=password]').forEach((i) => (i.value = ''));
+    P.mark('「お申込を確定する」');
+    location.href = 'done.html';
+  });
+  document.getElementById('BACK_BUTTON').addEventListener('click', () => { location.href = 'confirm.html'; });
+})();
+</script>
+</body>
+</html>

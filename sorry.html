@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="ltg-practice" content="1">
+<title>アクセス集中｜れんしゅうチケット</title>
+<link rel="stylesheet" href="style.css">
+<script src="common.js"></script>
+</head>
+<body>
+<div class="ph">れんしゅうチケット<small>練習用の架空のサイト</small></div>
+<main>
+  <p class="big" style="font-size:20px">現在アクセスが集中しており、サイトが繋がりにくい状況になっております。（503error）</p>
+  <p>しばらく時間をおいてから再度アクセスいただきますようお願い申し上げます。</p>
+  <p class="filler">The server is temporarily unable to service your request due to capacity problems. Please try again later.</p>
+  <p><a href="javascript:void(0)" id="back" style="padding-right:2em">◀　前のページに戻る</a></p>
+  <p><a href="index.html">練習の設定へ ▶</a></p>
+</main>
+<script>
+  // 本物と同じく、直前の公演ページのURL（クッキー）があればそこを新しく開く。なければブラウザの「戻る」
+  document.getElementById('back').addEventListener('click', () => {
+    const m = document.cookie.split(';').map((c) => c.trim().split('=')).find(([k]) => k === 'ScheduleUrl');
+    P.set('fromSorry', true);
+    if (m && m[1]) {
+      document.cookie = 'ScheduleUrl=;path=/;max-age=0';
+      location.href = decodeURIComponent(m[1]);
+    } else {
+      history.back();
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="ltg-practice" content="1">
+<title>練習公演「サンプルバンド」｜れんしゅうチケット</title>
+<link rel="stylesheet" href="style.css">
+<script src="common.js"></script>
+</head>
+<body>
+<div class="ph">れんしゅうチケット<small>練習用の架空のサイト</small></div>
+<main>
+  <h1>サンプルバンド HALL TOUR（練習）</h1>
+  <ul class="Tags labelText scheduleStatus" id="sch"><li class="Tag" id="statusTag"></li><li class="Tag entryMethod">先着</li><li class="Tag -alert">スマートフォン受付のみ</li></ul>
+  <p class="filler">受付期間：開始ボタンの時刻から ／ 1回の予約で最大4枚 ／ お一人様各公演1回まで（練習なので何回でもできます）</p>
+  <div class="views">
+    <button class="ViewSwitchButton -is-active" data-view-id="ticket">一覧</button>
+    <button class="ViewSwitchButton" data-view-id="calendar">カレンダー</button>
+  </div>
+  <div class="filler">
+    <p>【注意事項】本公演は電子チケットのみの取り扱いです。電子チケットの受け取りには、申込者本人のスマートフォンが必要です。</p>
+    <p>【年齢制限】4才以上有料（4才未満は入場できません）。</p>
+    <p>【その他】お申し込み後の変更・キャンセルはできません。内容をよくご確認のうえお申し込みください。ここは本番の画面と同じように、日程の一覧が下の方にあるのでスクロールの練習用に長めにしています。</p>
+    <p>【お問い合わせ】練習用サイトのため、お問い合わせ先はありません。</p>
+  </div>
+  <div id="ticket"></div>
+</main>
+
+<!-- 枚数選択 -->
+<div id="ticketselection-modal" class="Modal" aria-hidden="true">
+  <div class="Modal__box">
+    <h2 id="tsTitle">枚数を選択</h2>
+    <div class="TicketSelectBlock">
+      <p id="tsSeat"></p>
+      <select name="selectnum"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+      <p class="err" id="tsErr"></p>
+    </div>
+    <div class="ButtonArea">
+      <a class="Button -primary" href="javascript:void(0)" id="tsGo">申し込みへ進む</a>
+      <a class="Button" href="javascript:void(0)" id="tsBack">戻る</a>
+    </div>
+  </div>
+</div>
+
+<!-- 選択中のチケットの置き換え確認 -->
+<div id="selectTicketReplace-modal" class="Modal" aria-hidden="true">
+  <div class="Modal__box">
+    <p>現在、選択中のチケットを変更してもよろしいですか？</p>
+    <button class="Modal__btn Button" aria-label="キャンセル" id="repCancel">キャンセル</button>
+    <button class="Modal__btn Button -primary" aria-label="OK" id="repOk">OK</button>
+  </div>
+</div>
+
+<!-- エラー表示 -->
+<div id="errormessage-modal" class="Modal" aria-hidden="true">
+  <div class="Modal__box">
+    <p>ただいま混み合っています。<br>しばらくたってから再度、お手続きください。</p>
+    <button class="Modal__btn Button" aria-label="閉じる" id="errClose">閉じる</button>
+  </div>
+</div>
+
+<!-- カート -->
+<div id="cart-modal" class="Modal" aria-hidden="true">
+  <div class="Modal__box">
+    <h2>選択中のチケット</h2>
+    <div class="CartBox" id="cartBox"></div>
+    <button class="Button primary" id="cartGo">申し込みへ進む</button>
+    <button class="CartBox__deleteButton Button" id="cartDel">削除</button>
+    <button class="Button" id="cartClose">閉じる</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const cfg = P.cfg();
+  const DATES = [
+    { ymd: '20991128', disp: '2099/11/28(土)', open: '17:00', start: '18:00', key: 'P28', sold: cfg.sold28 },
+    { ymd: '20991129', disp: '2099/11/29(日)', open: '16:00', start: '17:00', key: 'P29', sold: cfg.sold29 },
+  ];
+  // 発売したかどうかは、ページを開いた（リロードした）時点で決まる（本物と同じく、リロードしないと表示は変わらない）
+  const launched = cfg.startAt && Date.now() >= cfg.startAt;
+  const sch = document.getElementById('sch');
+  sch.dataset.reservationStartDate = cfg.startAt ? new Date(cfg.startAt).toISOString() : '';
+  sch.dataset.statusName = launched ? '本日販売' : '発売前';
+  const tag = document.getElementById('statusTag');
+  tag.textContent = launched ? '本日発売' : '発売前';
+  tag.className = 'Tag ' + (launched ? '-release' : '-before-release');
+  if (launched) P.flowStart();
+
+  // 日程の一覧
+  const ticket = document.getElementById('ticket');
+  for (const d of DATES) {
+    // 「日程の欄には売り切れを出さない」設定のときは、売り切れの日程も欄の上では発売中に見える（タブを開くと売り切れと分かる）
+    const showSold = d.sold && !cfg.hideSold;
+    const st = !launched ? '-before-release' : showSold ? '-sold-out' : '-release';
+    const label = !launched ? '発売前' : showSold ? '予定枚数終了' : '本日発売';
+    const sec = document.createElement('section');
+    sec.className = 'AccordionBox';
+    Object.assign(sec.dataset, { yyyymmdd: d.ymd, prfdatedisp: d.disp, status: st, prfkey: d.key });
+    sec.innerHTML =
+      `<div class="AccordionBox__head"><span>${d.disp}<br><small>開場 ${d.open} ／ 開演 ${d.start}</small></span><p class="AccordionBox__status">${label}</p></div>` +
+      `<div class="AccordionBox__inner" data-curtaintime="${d.start}" data-prfkey="${d.key}" aria-expanded="false">` +
+      `<button class="AccordionBox__button AccordionToggleButton">席種・料金を見る ▼</button><ul class="AccordionBox__list"></ul></div>`;
+    ticket.appendChild(sec);
+    const inner = sec.querySelector('.AccordionBox__inner');
+    const list = sec.querySelector('.AccordionBox__list');
+    sec.querySelector('.AccordionToggleButton').addEventListener('click', async () => {
+      if (inner.dataset.loading) return;
+      inner.dataset.loading = '1';
+      list.innerHTML = '<li class="loading">読み込み中…</li>';
+      // サーバーの返事を待つ時間（混雑時は遅い）
+      await P.sleep(P.rand(300, 1500));
+      delete inner.dataset.loading;
+      if (launched && P.chance(cfg.busyRate)) {
+        list.innerHTML = '';
+        P.openModal('errormessage-modal');
+        return;
+      }
+      const status = !launched ? 'before-release' : d.sold ? 'sold-out' : 'release';
+      const statusTxt = { 'before-release': '発売前', 'sold-out': '予定枚数終了', release: '本日発売' }[status];
+      list.innerHTML =
+        `<li class="AccordionBox__item" data-item-status="${status}" data-name="全席指定">` +
+        `<div class="AccordionBox__itemPlace"><a href="javascript:void(0)">全席指定</a></div><span>￥8,800 ${statusTxt}</span></li>`;
+      inner.setAttribute('aria-expanded', 'true');
+      list.querySelector('a').addEventListener('click', () => pickSeat(d));
+    });
+  }
+
+  // 席を選ぶ
+  let picking = null;
+  const openTicketModal = (d) => {
+    picking = d;
+    document.getElementById('tsSeat').textContent = `${d.disp} 開演${d.start} 全席指定 ￥8,800`;
+    document.querySelector('#ticketselection-modal select').value = '0';
+    document.getElementById('tsErr').textContent = '';
+    P.openModal('ticketselection-modal');
+  };
+  const pickSeat = (d) => {
+    if (!launched || d.sold) return;
+    if (P.get('cart', null)) { picking = d; P.openModal('selectTicketReplace-modal'); return; }
+    openTicketModal(d);
+  };
+  document.getElementById('repOk').addEventListener('click', () => { P.closeModal('selectTicketReplace-modal'); P.del('cart'); openTicketModal(picking); });
+  document.getElementById('repCancel').addEventListener('click', () => P.closeModal('selectTicketReplace-modal'));
+  document.getElementById('errClose').addEventListener('click', () => P.closeModal('errormessage-modal'));
+  document.getElementById('tsBack').addEventListener('click', () => P.closeModal('ticketselection-modal'));
+  document.getElementById('tsGo').addEventListener('click', () => {
+    const n = document.querySelector('#ticketselection-modal select').value;
+    if (n === '0') { document.getElementById('tsErr').textContent = '枚数を選択してください。'; return; }
+    P.set('cart', { disp: picking.disp, start: picking.start, count: n });
+    P.submit();
+  });
+
+  // アクセス集中の画面から戻ったときは、前の選択がカートに残っている（本物と同じ動き）
+  const cart = P.get('cart', null);
+  if (launched && cart && P.get('fromSorry', false)) {
+    P.del('fromSorry');
+    document.getElementById('cartBox').innerHTML =
+      `<div class="CartBox__body">${cart.disp} 開演${cart.start}<br>全席指定 ￥8,800 × ${cart.count}枚</div>`;
+    P.openModal('cart-modal');
+  }
+  document.getElementById('cartGo').addEventListener('click', () => P.submit());
+  document.getElementById('cartDel').addEventListener('click', () => { P.del('cart'); P.closeModal('cart-modal'); });
+  document.getElementById('cartClose').addEventListener('click', () => P.closeModal('cart-modal'));
+})();
+</script>
+</body>
+</html>

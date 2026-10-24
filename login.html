@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="ltg-practice" content="1">
+<title>予約ログイン（練習）｜れんしゅうチケット</title>
+<link rel="stylesheet" href="style.css">
+<script src="common.js"></script>
+</head>
+<body>
+<div class="ph">れんしゅうチケット<small>練習用の架空のサイト</small></div>
+<main>
+  <h1>予約ログイン</h1>
+  <p class="note">本番と同じように入力できます。入力した内容はこのスマホの画面の中だけで使い、どこにも送信・保存しません（次のページへ進むときや、ページを離れるときに消します）。Safariに「パスワードを保存」と聞かれたら「保存しない」を選んでください。</p>
+  <form id="loginForm" name="loginForm" method="post" action="javascript:void(0)" autocomplete="off">
+    <p>メールアドレス<br><input type="text" name="MAIL_ADDR" autocomplete="off"></p>
+    <p>パスワード<br><input type="password" name="PWD" autocomplete="off"></p>
+    <p class="err" id="err"></p>
+    <button type="submit" class="Button primary large">ログイン</button>
+  </form>
+</main>
+<script>
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const f = e.target;
+    if (!f.MAIL_ADDR.value || !f.PWD.value) { document.getElementById('err').textContent = 'メールアドレスとパスワードを入力してください。'; return; }
+    // 入力内容は使わずに捨てる（保存も送信もしない）
+    f.reset();
+    P.sset('loggedIn', '1');
+    P.mark('ログイン');
+    location.href = 'payment.html';
+  });
+</script>
+</body>
+</html>
