@@ -8,7 +8,7 @@ window.P = (() => {
   const sset = (k, v) => { try { sessionStorage.setItem(K(k), String(v)); } catch (e) {} };
   const sdel = (k) => { try { sessionStorage.removeItem(K(k)); } catch (e) {} };
 
-  const DEFAULT = { delaySec: 20, sorryRate: 30, busyRate: 20, needLogin: true, sold29: false, sold28: false, hideSold: false, blankStock: true, startAt: 0 };
+  const DEFAULT = { delaySec: 20, sorryRate: 30, busyRate: 20, needLogin: true, sold29: false, sold28: false, hideSold: false, blankStock: true, stockMode: 'C', slowRes: false, twoShows: false, soldShow1: true, seats4: true, renameSeats: false, soldSeats: [], startAt: 0 };
   const cfg = () => Object.assign({}, DEFAULT, get('cfg', {}));
   const chance = (pct) => Math.random() * 100 < Number(pct || 0);
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

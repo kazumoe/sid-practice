@@ -62,7 +62,7 @@
 <script>
 (() => {
   const cart = P.get('cart', null);
-  document.getElementById('sel').textContent = cart ? `${cart.disp} 開演${cart.start} 全席指定 × ${cart.count}枚` : '（選択中のチケットがありません）';
+  document.getElementById('sel').textContent = cart ? `${cart.disp} 開演${cart.start} ${cart.seatName || '全席指定'} × ${cart.count}枚` : '（選択中のチケットがありません）';
   // 本物では前回の選択が残っていることがあるので、支払方法をランダムに選んだ状態で始める
   const pre = ['PAYMENT_MTHD_SEL-15', 'PAYMENT_MTHD_SEL-03', null][Math.floor(Math.random() * 3)];
   if (pre) document.getElementById(pre).checked = true;

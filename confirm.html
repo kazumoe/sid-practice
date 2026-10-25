@@ -31,7 +31,7 @@
   const pay = P.get('payment', '02');
   const payName = { '15': 'PayPay', '16': '楽天ペイ', '02': 'クレジットカード', '03': '店頭入金', '12': 'd払い' }[pay] || '';
   document.getElementById('when').textContent = `${cart.disp || ''} 開演${cart.start || ''}`;
-  document.getElementById('seat').textContent = `全席指定 ￥8,800 × ${cart.count || '?'}枚`;
+  document.getElementById('seat').textContent = `${cart.seatName || '全席指定'} ￥${cart.price || '8,800'} × ${cart.count || '?'}枚`;
   document.getElementById('pay').textContent = payName;
   const fix = document.getElementById('ENTRY_FIX');
   const credit = pay === '02';

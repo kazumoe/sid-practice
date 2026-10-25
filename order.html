@@ -23,6 +23,7 @@
     <p>【注意事項】本公演は電子チケットのみの取り扱いです。電子チケットの受け取りには、申込者本人のスマートフォンが必要です。</p>
     <p>【年齢制限】4才以上有料（4才未満は入場できません）。</p>
     <p>【その他】お申し込み後の変更・キャンセルはできません。内容をよくご確認のうえお申し込みください。ここは本番の画面と同じように、日程の一覧が下の方にあるのでスクロールの練習用に長めにしています。</p>
+    <p id="bikou"></p>
     <p>【お問い合わせ】練習用サイトのため、お問い合わせ先はありません。</p>
   </div>
   <div id="ticket"></div>
@@ -75,10 +76,16 @@
 <script>
 (() => {
   const cfg = P.cfg();
-  const DATES = [
+  // 在庫の出方（本物で見つかった3パターン）
+  //   A：ページを開いた時点で席と在庫が出ている  B：タブを押すと在庫を問い合わせ、返事が来てから出る  C：タブを押しても在庫の欄が空（シド）
+  const MODE = ['A', 'B', 'C'].includes(cfg.stockMode) ? cfg.stockMode : (cfg.blankStock ? 'C' : 'B');
+  // 1日の中の公演（本物と同じく、1つの日程の中に公演の数だけ AccordionBox__inner がある）
+  const SHOWS = [
     { ymd: '20991128', disp: '2099/11/28(土)', open: '17:00', start: '18:00', key: 'P28', sold: cfg.sold28 },
+    ...(cfg.twoShows ? [{ ymd: '20991129', disp: '2099/11/29(日)', open: '11:30', start: '12:30', key: 'P29A', sold: !!cfg.soldShow1 }] : []),
     { ymd: '20991129', disp: '2099/11/29(日)', open: '16:00', start: '17:00', key: 'P29', sold: cfg.sold29 },
   ];
+  const DAYS = [...new Set(SHOWS.map((x) => x.ymd))];
   // 発売したかどうかは、ページを開いた（リロードした）時点で決まる（本物と同じく、リロードしないと表示は変わらない）
   const launched = cfg.startAt && Date.now() >= cfg.startAt;
   const sch = document.getElementById('sch');
@@ -88,70 +95,109 @@
   tag.textContent = launched ? '本日発売' : '発売前';
   tag.className = 'Tag ' + (launched ? '-release' : '-before-release');
   if (launched) P.flowStart();
+  // 備考（本物のM!LKと同じく、ここの書き方は実際の席種名と少し違う：「着席指定席」→ 実際は「指定席」）
+  if (cfg.seats4) document.getElementById('bikou').textContent =
+    '【備考】＜着席指定席＞完全着席のお席です。＜注釈付指定席＞ステージが見えづらいお席です。＜立ち位置指定＞立見でのご観覧となります。＜注釈付立ち位置指定＞立見で、ステージが見えづらい場合がございます。';
+
+  // 席種（M!LKと同じ4種類。席種コードも本物と同じ）。「席種名を変える」設定では、備考の書き方と実際の名前がずれる練習になる
+  const SEATS = cfg.seats4 ? [
+    { cd: '001', name: '指定席', price: '11,500' },
+    { cd: '004', name: '注釈付指定席', price: '11,500' },
+    { cd: '005', name: cfg.renameSeats ? '立見指定' : '立ち位置指定', price: '11,000' },
+    { cd: '006', name: cfg.renameSeats ? '注釈付立見指定' : '注釈付立ち位置指定', price: '11,000' },
+  ] : [{ cd: '001', name: '全席指定', price: '8,800' }];
+  const soldSeats = Array.isArray(cfg.soldSeats) ? cfg.soldSeats : [];
+  const isSold = (d, seat) => !!d.sold || soldSeats.includes(`${d.key}|${seat.cd}`);
+  // 席の状態：発売前／売り切れ／在庫あり、Cは空（売り切れでも選べて「申し込みへ進む」で分かる）
+  const statusOf = (d, seat) => !launched ? 'before-release' : MODE === 'C' ? '' : isSold(d, seat) ? 'sold-out' : 'release';
+  const seatHtml = (d) => SEATS.map((seat) => {
+    const status = statusOf(d, seat);
+    const statusTxt = { 'before-release': '発売前', 'sold-out': '予定枚数終了', release: '本日発売', '': '' }[status];
+    return `<li class="AccordionBox__item" data-item-status="${status}" data-typecd="${seat.cd}" data-name="${seat.name}">` +
+      `<div class="AccordionBox__itemPlace"><a href="javascript:void(0)" data-cd="${seat.cd}">${seat.name}</a></div><span>￥${seat.price} ${statusTxt}</span></li>`;
+  }).join('');
+  // タブの開き閉じ（本物と同じく aria-expanded は向きが逆：「true」＝閉じている、「false」＝開いている）
+  const setOpen = (inner, list, open) => {
+    inner.setAttribute('aria-expanded', open ? 'false' : 'true');
+    list.style.display = open ? '' : 'none';
+  };
 
   // 日程の一覧
   const ticket = document.getElementById('ticket');
-  for (const d of DATES) {
-    // 「日程の欄には売り切れを出さない」設定のときは、売り切れの日程も欄の上では発売中に見える（タブを開くと売り切れと分かる）
-    const showSold = d.sold && !cfg.hideSold && !cfg.blankStock;
+  for (const ymd of DAYS) {
+    const shows = SHOWS.filter((x) => x.ymd === ymd);
+    const allSold = shows.every((x) => SEATS.every((seat) => isSold(x, seat)));
+    // 「日程の欄には売り切れを出さない」設定やCのときは、売り切れの日程も欄の上では発売中に見える
+    const showSold = allSold && !cfg.hideSold && MODE !== 'C';
     const st = !launched ? '-before-release' : showSold ? '-sold-out' : '-release';
     const label = !launched ? '発売前' : showSold ? '予定枚数終了' : '本日発売';
     const sec = document.createElement('section');
     sec.className = 'AccordionBox';
-    Object.assign(sec.dataset, { yyyymmdd: d.ymd, prfdatedisp: d.disp, status: st, prfkey: d.key });
-    sec.innerHTML =
-      `<div class="AccordionBox__head"><span>${d.disp}<br><small>開場 ${d.open} ／ 開演 ${d.start}</small></span><p class="AccordionBox__status">${label}</p></div>` +
-      `<div class="AccordionBox__inner" data-curtaintime="${d.start}" data-prfkey="${d.key}" aria-expanded="false">` +
-      `<button class="AccordionBox__button AccordionToggleButton">席種・料金を見る ▼</button><ul class="AccordionBox__list"></ul></div>`;
+    Object.assign(sec.dataset, { yyyymmdd: ymd, prfdatedisp: shows[0].disp, status: st });
+    const times = shows.map((x) => `開場 ${x.open} ／ 開演 ${x.start}`).join('<br>');
+    sec.innerHTML = `<div class="AccordionBox__head"><span>${shows[0].disp}<br><small>${times}</small></span><p class="AccordionBox__status">${label}</p></div>`;
     ticket.appendChild(sec);
-    const inner = sec.querySelector('.AccordionBox__inner');
-    const list = sec.querySelector('.AccordionBox__list');
-    sec.querySelector('.AccordionToggleButton').addEventListener('click', async () => {
-      if (inner.dataset.loading) return;
-      inner.dataset.loading = '1';
-      list.innerHTML = '<li class="loading">読み込み中…</li>';
-      // サーバーの返事を待つ時間（混雑時は遅い）
-      await P.sleep(P.rand(300, 1500));
-      delete inner.dataset.loading;
-      if (launched && P.chance(cfg.busyRate)) {
-        list.innerHTML = '';
-        P.openModal('errormessage-modal');
-        return;
-      }
-      // 「在庫を表示しない」設定では、本番と同じく在庫の表示が空になる（売り切れでも選べる）
-      const status = !launched ? 'before-release' : cfg.blankStock ? '' : d.sold ? 'sold-out' : 'release';
-      const statusTxt = { 'before-release': '発売前', 'sold-out': '予定枚数終了', release: '本日発売', '': '' }[status];
-      list.innerHTML =
-        `<li class="AccordionBox__item" data-item-status="${status}" data-name="全席指定">` +
-        `<div class="AccordionBox__itemPlace"><a href="javascript:void(0)">全席指定</a></div><span>￥8,800 ${statusTxt}</span></li>`;
-      inner.setAttribute('aria-expanded', 'true');
-      list.querySelector('a').addEventListener('click', () => pickSeat(d));
+    shows.forEach((d, i) => {
+      const inner = document.createElement('div');
+      inner.className = 'AccordionBox__inner';
+      Object.assign(inner.dataset, { curtaintime: d.start, prfkey: d.key, status: shows.length > 1 ? String(i + 1).padStart(2, '0') : '  ' });
+      const head = shows.length > 1 ? `<div class="AccordionBox__time" style="padding:8px 12px 0;font-size:13px;font-weight:bold">${i + 1}部　開場 ${d.open} ／ 開演 ${d.start}</div>` : '';
+      inner.innerHTML = `${head}<button class="AccordionBox__button AccordionToggleButton" data-prfkey="${d.key}">席種・料金を見る ▼</button><ul class="AccordionBox__list"></ul>`;
+      sec.appendChild(inner);
+      const list = inner.querySelector('.AccordionBox__list');
+      const fill = () => {
+        list.innerHTML = seatHtml(d);
+        list.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => pickSeat(d, SEATS.find((x) => x.cd === a.dataset.cd))));
+      };
+      // A：発売後は、ページを開いた時点で席と在庫が出ている
+      if (MODE === 'A' && launched) { fill(); setOpen(inner, list, true); } else setOpen(inner, list, false);
+      inner.querySelector('.AccordionToggleButton').addEventListener('click', async () => {
+        if (inner.dataset.loading) return;
+        // 開いているタブを押すと閉じる（本物と同じ）
+        if (inner.getAttribute('aria-expanded') === 'false') { setOpen(inner, list, false); return; }
+        if (MODE === 'A' && list.querySelector('.AccordionBox__item')) { setOpen(inner, list, true); return; }
+        inner.dataset.loading = '1';
+        list.innerHTML = '<li class="loading">読み込み中…</li>';
+        list.style.display = '';
+        // サーバーの返事を待つ時間（「返事が遅い」設定では5〜12秒）
+        await P.sleep(cfg.slowRes ? P.rand(5000, 12000) : P.rand(300, 1500));
+        delete inner.dataset.loading;
+        if (launched && P.chance(cfg.busyRate)) {
+          list.innerHTML = '';
+          setOpen(inner, list, false);
+          P.openModal('errormessage-modal');
+          return;
+        }
+        fill();
+        setOpen(inner, list, true);
+      });
     });
   }
 
   // 席を選ぶ
-  let picking = null;
-  const openTicketModal = (d) => {
-    picking = d;
-    document.getElementById('tsSeat').textContent = `${d.disp} 開演${d.start} 全席指定 ￥8,800`;
+  let picking = null, pickingSeat = SEATS[0];
+  const openTicketModal = (d, seat) => {
+    picking = d; pickingSeat = seat || SEATS[0];
+    document.getElementById('tsSeat').textContent = `${d.disp} 開演${d.start} ${pickingSeat.name} ￥${pickingSeat.price}`;
     document.getElementById('tsTitle').textContent = `枚数を選択（${d.disp}）`;
     document.querySelector('#ticketselection-modal select').value = '0';
     document.getElementById('tsErr').textContent = '';
     P.openModal('ticketselection-modal');
   };
-  const pickSeat = (d) => {
-    if (!launched || (d.sold && !cfg.blankStock)) return;
-    if (P.get('cart', null)) { picking = d; P.openModal('selectTicketReplace-modal'); return; }
-    openTicketModal(d);
+  const pickSeat = (d, seat) => {
+    if (!launched || (isSold(d, seat) && MODE !== 'C')) return;
+    if (P.get('cart', null)) { picking = d; pickingSeat = seat; P.openModal('selectTicketReplace-modal'); return; }
+    openTicketModal(d, seat);
   };
-  document.getElementById('repOk').addEventListener('click', () => { P.closeModal('selectTicketReplace-modal'); P.del('cart'); openTicketModal(picking); });
+  document.getElementById('repOk').addEventListener('click', () => { P.closeModal('selectTicketReplace-modal'); P.del('cart'); openTicketModal(picking, pickingSeat); });
   document.getElementById('repCancel').addEventListener('click', () => P.closeModal('selectTicketReplace-modal'));
   document.getElementById('errClose').addEventListener('click', () => P.closeModal('errormessage-modal'));
   document.getElementById('tsBack').addEventListener('click', () => P.closeModal('ticketselection-modal'));
   document.getElementById('tsGo').addEventListener('click', () => {
     const n = document.querySelector('#ticketselection-modal select').value;
     if (n === '0') { document.getElementById('tsErr').textContent = '枚数を選択してください。'; return; }
-    P.set('cart', { disp: picking.disp, start: picking.start, count: n, ymd: picking.ymd, sold: !!picking.sold });
+    P.set('cart', { disp: picking.disp, start: picking.start, count: n, ymd: picking.ymd, key: picking.key,
+      seatCd: pickingSeat.cd, seatName: pickingSeat.name, price: pickingSeat.price, sold: isSold(picking, pickingSeat) });
     P.submit();
   });
 
@@ -160,7 +206,7 @@
   if (launched && cart && P.get('fromSorry', false)) {
     P.del('fromSorry');
     document.getElementById('cartBox').innerHTML =
-      `<div class="CartBox__body">${cart.disp} 開演${cart.start}<br>全席指定 ￥8,800 × ${cart.count}枚</div>`;
+      `<div class="CartBox__body">${cart.disp} 開演${cart.start}<br>${cart.seatName || '全席指定'} ￥${cart.price || '8,800'} × ${cart.count}枚</div>`;
     P.openModal('cart-modal');
   }
   // 「ご案内」ページから戻されたとき（本物と同じく、URLに選んだ日程が付き、枚数画面が開き直される）
@@ -168,8 +214,11 @@
   if (launched && back) {
     try {
       const data = JSON.parse(back);
-      const d = DATES.find((x) => x.ymd === String((data.pf_date || [])[0]));
-      if (d) { openTicketModal(d); document.querySelector('#ticketselection-modal select').value = String(((data.tkt_cnt || [])[0] || [])[0] || '0'); }
+      const ymd = String((data.pf_date || [])[0]);
+      const c = P.get('cart', null);
+      const d = SHOWS.find((x) => c && x.key === c.key && x.ymd === ymd) || SHOWS.find((x) => x.ymd === ymd);
+      const seat = SEATS.find((x) => x.cd === String((data.seat_type_cd || [])[0] || '')) || SEATS.find((x) => c && x.cd === c.seatCd);
+      if (d) { openTicketModal(d, seat); document.querySelector('#ticketselection-modal select').value = String(((data.tkt_cnt || [])[0] || [])[0] || '0'); }
     } catch (e) {}
   }
   document.getElementById('cartGo').addEventListener('click', () => P.submit());

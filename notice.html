@@ -20,7 +20,8 @@
   // 本物と同じく、「戻る」で選んだ日程をURLに付けて公演ページへ戻る（枚数画面が開き直される）
   document.getElementById('back').addEventListener('click', () => {
     const cart = P.get('cart', null) || {};
-    const data = { pf_date: [cart.ymd || ''], tkt_cnt: [[cart.count || '1']] };
+    // 本物と同じく、公演の番号（pf_key）も付ける（1日2公演のとき、昼と夜を区別できる）
+    const data = { pf_key: [cart.key || ''], pf_date: [cart.ymd || ''], seat_type_cd: [cart.seatCd || '001'], tkt_cnt: [[cart.count || '1']] };
     location.href = 'order.html?gLcode=99999&c_SEARCH_TICKET_DATA=' + encodeURIComponent(JSON.stringify(data));
   });
 </script>
