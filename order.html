@@ -93,7 +93,7 @@
   const ticket = document.getElementById('ticket');
   for (const d of DATES) {
     // 「日程の欄には売り切れを出さない」設定のときは、売り切れの日程も欄の上では発売中に見える（タブを開くと売り切れと分かる）
-    const showSold = d.sold && !cfg.hideSold;
+    const showSold = d.sold && !cfg.hideSold && !cfg.blankStock;
     const st = !launched ? '-before-release' : showSold ? '-sold-out' : '-release';
     const label = !launched ? '発売前' : showSold ? '予定枚数終了' : '本日発売';
     const sec = document.createElement('section');
@@ -118,8 +118,9 @@
         P.openModal('errormessage-modal');
         return;
       }
-      const status = !launched ? 'before-release' : d.sold ? 'sold-out' : 'release';
-      const statusTxt = { 'before-release': '発売前', 'sold-out': '予定枚数終了', release: '本日発売' }[status];
+      // 「在庫を表示しない」設定では、本番と同じく在庫の表示が空になる（売り切れでも選べる）
+      const status = !launched ? 'before-release' : cfg.blankStock ? '' : d.sold ? 'sold-out' : 'release';
+      const statusTxt = { 'before-release': '発売前', 'sold-out': '予定枚数終了', release: '本日発売', '': '' }[status];
       list.innerHTML =
         `<li class="AccordionBox__item" data-item-status="${status}" data-name="全席指定">` +
         `<div class="AccordionBox__itemPlace"><a href="javascript:void(0)">全席指定</a></div><span>￥8,800 ${statusTxt}</span></li>`;
@@ -133,12 +134,13 @@
   const openTicketModal = (d) => {
     picking = d;
     document.getElementById('tsSeat').textContent = `${d.disp} 開演${d.start} 全席指定 ￥8,800`;
+    document.getElementById('tsTitle').textContent = `枚数を選択（${d.disp}）`;
     document.querySelector('#ticketselection-modal select').value = '0';
     document.getElementById('tsErr').textContent = '';
     P.openModal('ticketselection-modal');
   };
   const pickSeat = (d) => {
-    if (!launched || d.sold) return;
+    if (!launched || (d.sold && !cfg.blankStock)) return;
     if (P.get('cart', null)) { picking = d; P.openModal('selectTicketReplace-modal'); return; }
     openTicketModal(d);
   };
@@ -149,7 +151,7 @@
   document.getElementById('tsGo').addEventListener('click', () => {
     const n = document.querySelector('#ticketselection-modal select').value;
     if (n === '0') { document.getElementById('tsErr').textContent = '枚数を選択してください。'; return; }
-    P.set('cart', { disp: picking.disp, start: picking.start, count: n });
+    P.set('cart', { disp: picking.disp, start: picking.start, count: n, ymd: picking.ymd, sold: !!picking.sold });
     P.submit();
   });
 
@@ -160,6 +162,15 @@
     document.getElementById('cartBox').innerHTML =
       `<div class="CartBox__body">${cart.disp} 開演${cart.start}<br>全席指定 ￥8,800 × ${cart.count}枚</div>`;
     P.openModal('cart-modal');
+  }
+  // 「ご案内」ページから戻されたとき（本物と同じく、URLに選んだ日程が付き、枚数画面が開き直される）
+  const back = new URLSearchParams(location.search).get('c_SEARCH_TICKET_DATA');
+  if (launched && back) {
+    try {
+      const data = JSON.parse(back);
+      const d = DATES.find((x) => x.ymd === String((data.pf_date || [])[0]));
+      if (d) { openTicketModal(d); document.querySelector('#ticketselection-modal select').value = String(((data.tkt_cnt || [])[0] || [])[0] || '0'); }
+    } catch (e) {}
   }
   document.getElementById('cartGo').addEventListener('click', () => P.submit());
   document.getElementById('cartDel').addEventListener('click', () => { P.del('cart'); P.closeModal('cart-modal'); });

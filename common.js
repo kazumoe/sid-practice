@@ -8,7 +8,7 @@ window.P = (() => {
   const sset = (k, v) => { try { sessionStorage.setItem(K(k), String(v)); } catch (e) {} };
   const sdel = (k) => { try { sessionStorage.removeItem(K(k)); } catch (e) {} };
 
-  const DEFAULT = { delaySec: 20, sorryRate: 30, busyRate: 20, needLogin: true, sold29: false, sold28: false, hideSold: false, startAt: 0 };
+  const DEFAULT = { delaySec: 20, sorryRate: 30, busyRate: 20, needLogin: true, sold29: false, sold28: false, hideSold: false, blankStock: true, startAt: 0 };
   const cfg = () => Object.assign({}, DEFAULT, get('cfg', {}));
   const chance = (pct) => Math.random() * 100 < Number(pct || 0);
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -37,6 +37,8 @@ window.P = (() => {
     const c = cfg();
     mark('「申し込みへ進む」');
     if (chance(c.sorryRate)) return toSorry();
+    const cart = get('cart', null);
+    if (cart && cart.sold) { mark(`在庫なし（${cart.disp}）→ ご案内ページ`); location.href = 'notice.html'; return; }
     location.href = c.needLogin && !sget('loggedIn') ? 'login.html' : 'payment.html';
   };
 

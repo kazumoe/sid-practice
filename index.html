@@ -24,6 +24,7 @@
   <label class="choice"><input id="sold29" type="checkbox"> 11/29(日) を売り切れにする（第2希望へ回る練習）</label>
   <label class="choice"><input id="sold28" type="checkbox"> 11/28(土) も売り切れにする</label>
   <label class="choice"><input id="hideSold" type="checkbox"> 日程の欄には売り切れを出さない（タブを開いて初めて在庫が分かる公演の練習）</label>
+  <label class="choice"><input id="blankStock" type="checkbox"> 発売直後は席の在庫を表示しない（本番のシドと同じ。「申し込みへ進む」で初めて在庫の有無が分かり、なければ「予約枚数終了」の画面になる）</label>
 
   <button id="start" class="Button -primary">練習を始める</button>
   <p class="filler">開始すると公演ページが「発売前」で開きます。案内版の帯のカウントダウンが0になったら、自分でリロードしてください。</p>
@@ -31,12 +32,12 @@
 <script>
   const c = P.cfg();
   for (const k of ['delaySec', 'sorryRate', 'busyRate']) document.getElementById(k).value = c[k];
-  for (const k of ['needLogin', 'sold29', 'sold28', 'hideSold']) document.getElementById(k).checked = !!c[k];
+  for (const k of ['needLogin', 'sold29', 'sold28', 'hideSold', 'blankStock']) document.getElementById(k).checked = !!c[k];
   document.getElementById('start').addEventListener('click', () => {
     const v = (id) => Number(document.getElementById(id).value) || 0;
     const b = (id) => document.getElementById(id).checked;
     const cfg = { delaySec: Math.max(5, v('delaySec')), sorryRate: v('sorryRate'), busyRate: v('busyRate'),
-      needLogin: b('needLogin'), sold29: b('sold29'), sold28: b('sold28'), hideSold: b('hideSold') };
+      needLogin: b('needLogin'), sold29: b('sold29'), sold28: b('sold28'), hideSold: b('hideSold'), blankStock: b('blankStock') };
     cfg.startAt = Date.now() + cfg.delaySec * 1000;
     P.set('cfg', cfg);
     P.reset();

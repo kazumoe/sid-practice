@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="ltg-practice" content="1">
+<title>ご案内｜れんしゅうチケット</title>
+<link rel="stylesheet" href="style.css">
+<script src="common.js"></script>
+<style>.msg{color:#c2507a;font-size:17px;line-height:1.8;margin:24px 0 40px}.back{background:#5a87a6;color:#fff;border:0;border-radius:6px;width:100%;padding:16px;font-size:18px}</style>
+</head>
+<body>
+<div class="ph">れんしゅうチケット<small>練習用の架空のサイト</small></div>
+<main>
+  <p class="msg">誠に申し訳ありませんが、予約枚数終了のため、お席が確保できませんでした。</p>
+  <button type="button" class="back" id="back">戻る</button>
+</main>
+<script>
+  // 本物と同じく、「戻る」で選んだ日程をURLに付けて公演ページへ戻る（枚数画面が開き直される）
+  document.getElementById('back').addEventListener('click', () => {
+    const cart = P.get('cart', null) || {};
+    const data = { pf_date: [cart.ymd || ''], tkt_cnt: [[cart.count || '1']] };
+    location.href = 'order.html?gLcode=99999&c_SEARCH_TICKET_DATA=' + encodeURIComponent(JSON.stringify(data));
+  });
+</script>
+</body>
+</html>
