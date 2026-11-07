@@ -19,6 +19,8 @@
 
   <h2>本番っぽさ</h2>
   <label class="choice">「申し込みへ進む」でアクセス集中の画面になる確率 <input id="sorryRate" type="number" min="0" max="100" style="width:4em"> %</label>
+  <label class="choice"><input id="sorryWait" type="checkbox"> アクセス集中の画面になる前に4〜10秒待たされる（11/7 の本物と同じ）</label>
+  <label class="choice"><input id="sorryKeepCart" type="checkbox"> アクセス集中の画面から戻ったとき、選んだ席をカートに残す（11/7 の本物は残らず、選び直しだった）</label>
   <label class="choice">タブを押したとき「混み合っています」が出る確率 <input id="busyRate" type="number" min="0" max="100" style="width:4em"> %</label>
   <label class="choice"><input id="needLogin" type="checkbox"> ログイン画面を出す（ログインしていない状態の練習）</label>
   <label class="choice"><input id="sold29" type="checkbox"> 11/29(日) を売り切れにする（第2希望へ回る練習）</label>
@@ -33,6 +35,11 @@
   <p class="filler">売り切れにする席（チェックした席だけ売り切れ。4種類のときだけ有効）</p>
   <table class="sum" id="soldGrid"></table>
 
+  <h2>申し込みの途中の画面</h2>
+  <label class="choice"><input id="itemAuth" type="checkbox"> アイテム認証（絵を選ぶ認証）を出す（M!LKの抽選で出た画面の練習。絵は練習用）</label>
+  <label class="choice"><input id="noETicket" type="checkbox"> 引取方法に「電子チケット」がない公演にする（ILLITと同じ「店頭」だけ。電話番号の欄も出ない）</label>
+  <label class="choice"><input id="question" type="checkbox"> アンケート画面を出す（ENHYPENと同じ。入力 → 確認の2画面）</label>
+  <label class="choice"><input id="longConfirm" type="checkbox"> 「先着予約確認」を本物と同じ長さにする（ボタンが下の方。ユニコーンと同じ）</label>
   <h2>在庫の出方</h2>
   <label class="choice"><input type="radio" name="stockMode" value="A"> A：ページを開いた時点で席と在庫が出ている（タブを押さなくてよい）</label>
   <label class="choice"><input type="radio" name="stockMode" value="B"> B：タブを押すと在庫を問い合わせ、返事が来てから席と在庫が出る</label>
@@ -45,7 +52,7 @@
 <script>
   const c = P.cfg();
   for (const k of ['delaySec', 'sorryRate', 'busyRate']) document.getElementById(k).value = c[k];
-  for (const k of ['needLogin', 'sold29', 'sold28', 'hideSold', 'slowRes', 'twoShows', 'soldShow1', 'seats4', 'renameSeats']) document.getElementById(k).checked = !!c[k];
+  for (const k of ['needLogin', 'sold29', 'sold28', 'hideSold', 'slowRes', 'twoShows', 'soldShow1', 'seats4', 'renameSeats', 'itemAuth', 'noETicket', 'question', 'longConfirm', 'sorryWait', 'sorryKeepCart']) document.getElementById(k).checked = !!c[k];
   // 売り切れにする席の表（行＝席種、列＝公演）
   const SEATN = [['001', '指定席'], ['004', '注釈付指定席'], ['005', '立ち位置指定'], ['006', '注釈付立ち位置指定']];
   const SHOWN = [['P29A', '11/29 1部'], ['P29', '11/29 2部<br><small>(1公演の日はこれ)</small>'], ['P28', '11/28']];
@@ -62,6 +69,7 @@
       needLogin: b('needLogin'), sold29: b('sold29'), sold28: b('sold28'), hideSold: b('hideSold'),
       stockMode: document.querySelector('input[name=stockMode]:checked')?.value || 'C', slowRes: b('slowRes'), twoShows: b('twoShows'),
       soldShow1: b('soldShow1'), seats4: b('seats4'), renameSeats: b('renameSeats'),
+      itemAuth: b('itemAuth'), noETicket: b('noETicket'), question: b('question'), longConfirm: b('longConfirm'), sorryWait: b('sorryWait'), sorryKeepCart: b('sorryKeepCart'),
       soldSeats: [...document.querySelectorAll('.soldSeat:checked')].map((x) => x.value) };
     cfg.blankStock = cfg.stockMode === 'C';
     cfg.startAt = Date.now() + cfg.delaySec * 1000;

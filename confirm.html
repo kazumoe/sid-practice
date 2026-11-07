@@ -12,26 +12,71 @@
 <body>
 <div class="ph">れんしゅうチケット<small>練習用の架空のサイト</small></div>
 <main>
-  <h1>先着予約確認</h1>
-  <table class="sum">
-    <tr><td>公演</td><td>サンプルバンド HALL TOUR（練習）</td></tr>
-    <tr><td>日時</td><td id="when"></td></tr>
-    <tr><td>席種・枚数</td><td id="seat"></td></tr>
-    <tr><td>引取方法</td><td>電子チケット</td></tr>
-    <tr><td>支払方法</td><td id="pay"></td></tr>
-  </table>
-  <p class="filler">内容をご確認ください。ここは本物と同じように、ボタンが画面の下の方にあります。</p>
-  <div class="filler"><p>【キャンセルについて】お申し込み後のキャンセルはできません。</p><p>【お知らせメール】出演者・ジャンルのお知らせを受け取る設定は、練習では使いません。</p></div>
-  <button type="button" id="ENTRY_FIX" name="ENTRY_FIX" class="Button -primary"></button>
-  <button type="button" id="MTHD_CHG" name="MTHD_CHG" class="Button">戻る</button>
+  <!-- 本物（2026/11/7 MONKEY MAJIK）と同じ並び・同じ部品の名前。案内版 v1.8.3 の「詰める」がそのまま効く -->
+  <div class="TransitionMenu"><span class="on">申込情報</span><span class="on">内容確認</span><span>完了</span></div>
+  <section class="ConfirmationArea">
+    <div class="area_inner"><div class="ConfirmationArea__main"><h1>予約内容の確認</h1></div></div>
+    <div class="main_inner"><div class="ConfirmationArea__main">
+      <p class="note">お申し込みはまだ確定しておりません<br>予約内容をご確認のうえお進みください</p>
+      <p class="explanation">※変更する場合はページ下部の［戻る］ボタンを押してください。<br>※ブラウザの「戻る」ボタンは使用しないでください。</p>
+      <div class="ConfirmationArea__cover">
+        <h2 class="ConfirmationArea__cover__Title">サンプルバンド</h2>
+        <div class="ConfirmationArea__cover__List"><span class="tag">先着</span><span class="tag">一般販売</span><p class="small">受付期間：開始ボタンの時刻 ～ 2099/11/20 22:00</p></div>
+        <dl><dt>公演日：</dt><dd id="when"></dd><dt>会場：</dt><dd>れんしゅうホール(東京都)</dd><dt>席種/券種・枚数：</dt><dd id="seat"></dd><dt>チケット枚数合計：</dt><dd id="cnt"></dd></dl>
+      </div>
+    </div></div>
+  </section>
+  <form id="ttd020" class="ticketReservation" onsubmit="return false"><section class="ReservationScreen"><div class="infor_inner">
+    <div class="ReservationScreen__cover"><h3>料金</h3></div>
+    <div class="ReservationScreen__content">
+      <div class="ReservationScreen__content__list"><p class="ContentName">チケット代金</p><p id="price"></p></div>
+      <div class="ReservationScreen__content__list"><p class="ContentName">手数料</p><p>システム利用料 ¥330 × 1枚<br>電子チケットサービス料 ¥110 × 1枚</p><p class="small">※手数料はご購入いただく席種・券種により異なる場合がございます。</p></div>
+      <div class="ReservationScreen__content__total">合計金額 <b id="total"></b></div>
+    </div>
+    <div class="ReservationScreen__cover"><h3>引取方法</h3></div>
+    <div class="ReservationScreen__content"><p class="ContentName" id="take"></p><dl><dt>メールアドレス</dt><dd>（練習のため表示しません）</dd></dl></div>
+    <div class="ReservationScreen__cover"><h3>支払方法</h3></div>
+    <div class="ReservationScreen__content"><p class="SelectionName" id="pay"></p></div>
+    <div class="ReservationScreen__cover"><h3>登録電話番号</h3></div>
+    <div class="ReservationScreen__info"><p class="name">（練習のため表示しません）</p><p class="ReservationScreen__info__text">電子チケットを使用時に、必要になります。</p></div>
+    <div class="ReservationScreen__cover"><h3>お気に入り登録</h3></div>
+    <div class="ReservationScreen__info">
+      <p class="ReservationScreen__info__text">お気に入り登録をすると、最新情報をメールでお届けします。<br>不要な場合はチェックを外してください。</p>
+      <div class="ReservationScreen__info__box">
+        <p><b>人物・団体</b></p><label class="choice"><input type="checkbox" name="ARTIST_NAME[]" checked> サンプルバンド</label>
+        <p><b>ジャンル</b></p><label class="choice"><input type="checkbox" name="GENRE_NAME[]" checked> ポップス・ロック（国内アーティスト）</label>
+      </div>
+      <div class="ReservationScreen__info__area"><button type="button" class="Button" id="ALSLC_REL">全て解除</button></div>
+    </div>
+    <div class="ReservationScreen__must-read">
+      <h4 class="AgreementRequired">お申し込み前に必ずお読みください</h4>
+      <p class="AgreementText">※お買い求めいただいたチケットは返品・交換できません。<br>※クレジット決済・d払いなどは、お申し込みが確定した時点で決済が完了となります。<br>※公演中止の場合を除き、払い戻しはいたしません。<br>※電子チケットの受け取りには、申込者本人のスマートフォンが必要です。<br>※お申し込み内容は、お申し込み確定後にマイページでご確認いただけます。（練習用の文面です）</p>
+      <p class="AgreementText"></p>
+      <div class="ReservationScreen__must-read__select"><div class="ButtonArea">
+        <div class="ButtonArea__NextButton"><button type="button" id="ENTRY_FIX" name="ENTRY_FIX" class="Button -primary"></button></div>
+        <div class="ButtonArea__TicketSelect"><button type="button" id="MTHD_CHG" name="MTHD_CHG" class="Button">戻る</button></div>
+      </div></div>
+    </div>
+  </div></section></form>
 </main>
 <script>
 (() => {
   const cart = P.get('cart', null) || {};
   const pay = P.get('payment', '02');
   const payName = { '15': 'PayPay', '16': '楽天ペイ', '02': 'クレジットカード', '03': '店頭入金', '12': 'd払い' }[pay] || '';
-  document.getElementById('when').textContent = `${cart.disp || ''} 開演${cart.start || ''}`;
-  document.getElementById('seat').textContent = `${cart.seatName || '全席指定'} ￥${cart.price || '8,800'} × ${cart.count || '?'}枚`;
+  // 「先着予約確認を本物と同じ長さにする」設定（ボタンが下の方にある）
+  const cfg = P.cfg();
+  // 設定「先着予約確認を本物と同じ長さにする」がオフのときは、内訳・お気に入り・注意事項を出さない（短い画面）
+  if (!cfg.longConfirm) document.querySelectorAll('.ReservationScreen__cover ~ .ReservationScreen__cover, .ReservationScreen__content ~ .ReservationScreen__content, .ReservationScreen__info, .AgreementRequired, .AgreementText').forEach((e) => (e.style.display = 'none'));
+  const take = P.get('take', '電子チケット');
+  document.getElementById('take').textContent = take;
+  document.getElementById('price').textContent = `${cart.seatName || '全席指定'} ¥${cart.price || '8,800'} × ${cart.count || 1}枚`;
+  document.getElementById('ALSLC_REL').addEventListener('click', () => document.querySelectorAll('.ReservationScreen__info__box input[type=checkbox]').forEach((x) => (x.checked = false)));
+  const unit = Number(String(cart.price || '8,800').replace(/,/g, '')) || 8800, n = Number(cart.count) || 1;
+  document.getElementById('total').textContent = `¥${(unit * n + 440 * n).toLocaleString()}`;
+  document.getElementById('cnt').textContent = `${n}枚`;
+  document.getElementById('when').textContent = `${cart.disp || ''} [開演]${cart.start || ''}`;
+  document.getElementById('seat').textContent = `${cart.seatName || '全席指定'} ${cart.count || '?'}枚`;
   document.getElementById('pay').textContent = payName;
   const fix = document.getElementById('ENTRY_FIX');
   const credit = pay === '02';

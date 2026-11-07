@@ -8,7 +8,9 @@ window.P = (() => {
   const sset = (k, v) => { try { sessionStorage.setItem(K(k), String(v)); } catch (e) {} };
   const sdel = (k) => { try { sessionStorage.removeItem(K(k)); } catch (e) {} };
 
-  const DEFAULT = { delaySec: 20, sorryRate: 30, busyRate: 20, needLogin: true, sold29: false, sold28: false, hideSold: false, blankStock: true, stockMode: 'C', slowRes: false, twoShows: false, soldShow1: true, seats4: true, renameSeats: false, soldSeats: [], startAt: 0 };
+  const DEFAULT = { delaySec: 20, sorryRate: 30, busyRate: 20, needLogin: true, sold29: false, sold28: false, hideSold: false, blankStock: true, stockMode: 'C', slowRes: false, twoShows: false, soldShow1: true, seats4: true, renameSeats: false, soldSeats: [],
+    question: false, longConfirm: true, itemAuth: false, noETicket: false,
+    sorryWait: true, sorryKeepCart: false, startAt: 0 };
   const cfg = () => Object.assign({}, DEFAULT, get('cfg', {}));
   const chance = (pct) => Math.random() * 100 < Number(pct || 0);
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -36,13 +38,20 @@ window.P = (() => {
   const submit = () => {
     const c = cfg();
     mark('「申し込みへ進む」');
-    if (chance(c.sorryRate)) return toSorry();
+    // 本物（11/7 MONKEY MAJIK）は「申し込みへ進む」から4〜10秒ほど待たされてからアクセス集中の画面になった
+    if (chance(c.sorryRate)) { if (c.sorryWait) setTimeout(toSorry, rand(4000, 10000)); else toSorry(); return; }
     const cart = get('cart', null);
     if (cart && cart.sold) { mark(`在庫なし（${cart.disp}）→ ご案内ページ`); location.href = 'notice.html'; return; }
-    location.href = c.needLogin && !sget('loggedIn') ? 'login.html' : 'payment.html';
+    if (c.needLogin && !sget('loggedIn')) { location.href = 'login.html'; return; }
+    afterLogin();
+  };
+  // ログインのあと：アイテム認証（設定がオンなら）→ 引取／支払
+  const afterLogin = () => {
+    const c = cfg();
+    location.href = c.itemAuth ? 'itemauth.html' : 'payment.html';
   };
 
-  const reset = () => { ['cart', 'marks', 'flowStart', 'payment', 'fromSorry'].forEach(del); sdel('loggedIn'); };
+  const reset = () => { ['cart', 'marks', 'flowStart', 'payment', 'fromSorry', 'take'].forEach(del); sdel('loggedIn'); };
 
   const openModal = (id) => document.getElementById(id)?.setAttribute('aria-hidden', 'false');
   const closeModal = (id) => document.getElementById(id)?.setAttribute('aria-hidden', 'true');
@@ -52,5 +61,5 @@ window.P = (() => {
   window.addEventListener('pagehide', wipe);
   window.addEventListener('pageshow', (e) => { if (e.persisted) wipe(); });
 
-  return { get, set, del, sget, sset, sdel, cfg, chance, sleep, rand, mark, flowStart, toSorry, submit, reset, openModal, closeModal };
+  return { get, set, del, sget, sset, sdel, cfg, chance, sleep, rand, mark, flowStart, toSorry, submit, afterLogin, reset, openModal, closeModal };
 })();

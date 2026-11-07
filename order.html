@@ -30,18 +30,48 @@
 </main>
 
 <!-- 枚数選択 -->
-<div id="ticketselection-modal" class="Modal" aria-hidden="true">
-  <div class="Modal__box">
-    <h2 id="tsTitle">枚数を選択</h2>
-    <div class="TicketSelectBlock">
-      <p id="tsSeat"></p>
-      <select name="selectnum"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
-      <p class="err" id="tsErr"></p>
-    </div>
-    <div class="ButtonArea">
-      <a class="Button -primary" href="javascript:void(0)" id="tsGo">申し込みへ進む</a>
-      <a class="Button" href="javascript:void(0)" id="tsBack">戻る</a>
-    </div>
+<div id="ticketselection-modal" class="Modal Modal-slide" aria-hidden="true">
+  <!-- 本物（2026/11/1 ユニコーン）と同じ並び：画面いっぱいに開き、枚数欄と「申し込みへ進む」は下の方にある -->
+  <div class="Modal__container" role="dialog" aria-modal="true">
+    <header class="Header -with-border"><h1 class="Header__title"><a href="javascript:void(0)" class="Header__return" id="tsHeadBack">‹</a> <span id="tsTitle">枚数選択</span></h1></header>
+    <main class="Main"><section class="Section"><div class="Container">
+      <h2 class="TicketTitle -with-border">選択中のチケット</h2>
+      <div id="scheduleStatus_detail"></div>
+      <ul class="Tags"><li class="Tag -release">本日発売</li><li class="Tag">先着</li></ul>
+      <section class="Section">
+        <div class="TicketTitle__wrapper"><p class="Text -with-icon"><b>サンプルバンド</b></p></div>
+        <p class="Text -with-icon"><i class="Icon-calendar">📅</i><b id="tsDate"></b></p>
+        <p class="Text -with-icon"><i class="Icon-clock">🕒</i><b id="tsTime"></b></p>
+        <p class="Text -with-icon"><i class="Icon-pin">📍</i><b>れんしゅうホール(東京都)</b> <a class="Link" href="javascript:void(0)">会場詳細</a></p>
+        <dl class="detailRmrks Text -gray"></dl>
+      </section>
+      <section class="Section">
+        <h3 class="SectionTitle">【受付期間】</h3>
+        <p class="Text"><b id="tsPeriod"></b></p>
+      </section>
+      <section class="Section">
+        <h2 class="SectionTitle -with-border">枚数を選択する</h2>
+        <div class="TicketSelectBlock mt-40">
+          <h4 class="TicketSelectBlock__name" id="tsSeatName"></h4>
+          <div class="TicketSelectBlock__select"><p class="TicketSelectBlock__price" id="tsPrice"></p>
+            <select name="selectnum"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select> 枚</div>
+          <p class="err" id="tsErr"></p>
+        </div>
+        <div class="Box bg:gray"><ul class="StackList"><li><small>※１回の予約で購入できる枚数は最大4枚です。</small></li><li><small>※お申し込みはお一人様各公演につき1回までです。</small></li></ul></div>
+        <div class="ButtonArea">
+          <a class="Button -primary" href="javascript:void(0)" id="tsGo" disabled="true">申し込みへ進む</a>
+          <a class="Button" href="javascript:void(0)" id="tsBack">戻る</a>
+        </div>
+      </section>
+      <section class="Section">
+        <dl class="DefineList">
+          <div><h3 class="SectionTitle -with-border">引取方法・支払方法・手数料について</h3></div>
+          <div><dt>引取方法：</dt><dd id="tsTake">店頭 電子チケット</dd></div>
+          <div><dt>支払方法：</dt><dd>PayPay 楽天ペイ クレジットカード 店頭入金 d払い</dd></div>
+          <div><dt>手数料：</dt><dd>システム利用料：¥330/枚<br>決済システム利用料：¥330/1申込<br>電子チケットサービス料：¥110/枚</dd></div>
+        </dl>
+      </section>
+    </div></section></main>
   </div>
 </div>
 
@@ -178,9 +208,16 @@
   let picking = null, pickingSeat = SEATS[0];
   const openTicketModal = (d, seat) => {
     picking = d; pickingSeat = seat || SEATS[0];
-    document.getElementById('tsSeat').textContent = `${d.disp} 開演${d.start} ${pickingSeat.name} ￥${pickingSeat.price}`;
-    document.getElementById('tsTitle').textContent = `枚数を選択（${d.disp}）`;
+    document.getElementById('tsDate').textContent = d.disp;
+    document.getElementById('tsTime').textContent = `[開場] ${d.open || ''} [開演] ${d.start}`;
+    document.getElementById('tsSeatName').textContent = pickingSeat.name;
+    document.getElementById('tsPrice').textContent = `￥${pickingSeat.price}`;
+    const st = new Date(cfg.startAt || Date.now());
+    document.getElementById('tsPeriod').textContent = `${st.getFullYear()}/${st.getMonth() + 1}/${st.getDate()} ${String(st.getHours()).padStart(2, '0')}:${String(st.getMinutes()).padStart(2, '0')} ～ 2099/11/20 22:00 まで`;
+    document.getElementById('tsTake').textContent = cfg.noETicket ? '店頭' : '店頭 電子チケット';
     document.querySelector('#ticketselection-modal select').value = '0';
+    document.getElementById('tsGo').setAttribute('disabled', 'true');
+    document.getElementById('ticketselection-modal').querySelector('.Modal__container').scrollTop = 0;
     document.getElementById('tsErr').textContent = '';
     P.openModal('ticketselection-modal');
   };
@@ -193,6 +230,11 @@
   document.getElementById('repCancel').addEventListener('click', () => P.closeModal('selectTicketReplace-modal'));
   document.getElementById('errClose').addEventListener('click', () => P.closeModal('errormessage-modal'));
   document.getElementById('tsBack').addEventListener('click', () => P.closeModal('ticketselection-modal'));
+  // 本物と同じく、枚数を選ぶまで「申し込みへ進む」は押せない見た目
+  document.querySelector('#ticketselection-modal select').addEventListener('change', (e) => {
+    if (e.target.value === '0') document.getElementById('tsGo').setAttribute('disabled', 'true'); else document.getElementById('tsGo').removeAttribute('disabled');
+  });
+  document.getElementById('tsHeadBack').addEventListener('click', () => P.closeModal('ticketselection-modal'));
   document.getElementById('tsGo').addEventListener('click', () => {
     const n = document.querySelector('#ticketselection-modal select').value;
     if (n === '0') { document.getElementById('tsErr').textContent = '枚数を選択してください。'; return; }
@@ -203,6 +245,8 @@
 
   // アクセス集中の画面から戻ったときは、前の選択がカートに残っている（本物と同じ動き）
   const cart = P.get('cart', null);
+  // ※11/7 の本物では、戻ったときカートは空だった（選び直し）。設定「カートを残す」がオンのときだけ残す
+  if (launched && cart && P.get('fromSorry', false) && !cfg.sorryKeepCart) { P.del('fromSorry'); P.del('cart'); }
   if (launched && cart && P.get('fromSorry', false)) {
     P.del('fromSorry');
     document.getElementById('cartBox').innerHTML =

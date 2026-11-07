@@ -41,3 +41,70 @@ input[type=text], input[type=email], input[type=password], input[inputmode=numer
 table.sum { width: 100%; border-collapse: collapse; background: var(--card); }
 table.sum td { border: 1px solid var(--line); padding: 8px; font-size: 14px; }
 .big { font-size: 28px; font-weight: bold; color: var(--brand); }
+
+/* 枚数選択（本物と同じく画面いっぱい・長い） */
+.Modal.Modal-slide { align-items: stretch; background: var(--card); }
+.Modal-slide .Modal__container { width: 100%; max-width: 640px; margin: 0 auto; overflow: auto; background: var(--card); padding-bottom: 140px; }
+.Modal-slide .Header { position: sticky; top: 0; background: #0070c0; color: #fff; padding: 10px 16px; z-index: 1; }
+.Modal-slide .Header__title { font-size: 18px; margin: 0; }
+.Modal-slide .Header__return { color: #fff; text-decoration: none; margin-right: 12px; font-size: 22px; }
+.Modal-slide .Container { padding: 0 16px; }
+.Modal-slide .Section { margin: 16px 0; }
+.TicketTitle { font-size: 22px; border-left: 4px solid #0070c0; padding-left: 10px; margin: 20px 0 16px; }
+.SectionTitle { font-size: 17px; margin: 16px 0 8px; }
+.SectionTitle.-with-border { border-left: 4px solid #0070c0; padding-left: 10px; }
+.Modal-slide .Tags { list-style: none; display: flex; gap: 6px; padding: 0; margin: 0 0 12px; }
+.Modal-slide .Tag { border: 1px solid var(--line); padding: 2px 8px; font-size: 13px; border-radius: 3px; }
+.Modal-slide .Tag.-release { background: #c8336b; color: #fff; border-color: #c8336b; }
+.Modal-slide .Text { margin: 6px 0; }
+.Modal-slide .Icon-calendar, .Modal-slide .Icon-clock, .Modal-slide .Icon-pin { font-style: normal; margin-right: 6px; }
+.TicketSelectBlock.mt-40 { margin-top: 40px; }
+.TicketSelectBlock__name { font-size: 16px; margin: 0 0 8px; }
+.TicketSelectBlock__select { display: flex; justify-content: flex-end; align-items: center; gap: 10px; font-size: 16px; }
+.TicketSelectBlock__price { margin: 0; }
+.TicketSelectBlock select { font-size: 18px; padding: 6px 10px; }
+.Box.bg\:gray { background: #eee; padding: 10px 12px; margin-top: 24px; border-radius: 4px; }
+.Box .StackList { list-style: none; padding: 0; margin: 0; }
+.Button[disabled="true"] { background: #bbb !important; border-color: #bbb !important; color: #fff !important; }
+.DefineList { border: 1px solid var(--line); border-radius: 4px; padding: 8px 16px; font-size: 14px; }
+.DefineList dt { font-weight: bold; margin-top: 8px; }
+.DefineList dd { margin: 2px 0 8px; }
+.TicketSelectBlock select { width: auto; min-width: 72px; }
+
+/* 引取／支払・先着予約確認（本物の見た目に寄せる） */
+.TransitionMenu { display: flex; justify-content: space-around; font-size: 13px; color: #999; padding: 10px 0 14px; border-bottom: 1px solid var(--line); margin: 0 -16px 0; }
+.TransitionMenu .on { color: #0070c0; font-weight: bold; }
+.SelectionArea__main__SelectTitle, .ConfirmationArea .area_inner h1 { font-size: 22px; margin: 18px 0 14px; }
+#errorMsgList { list-style: none; padding: 0; margin: 0 0 8px; color: #c00; font-weight: bold; min-height: 8px; }
+.SelectionArea__cover, .ConfirmationArea__cover { background: #f2f2f2; padding: 16px; margin-bottom: 12px; }
+.SelectionArea__cover__Title, .ConfirmationArea__cover__Title { font-size: 22px; letter-spacing: .3em; margin: 0 0 10px; }
+.SelectionArea__cover__List { list-style: none; padding: 0; display: flex; gap: 6px; margin: 0 0 8px; }
+.tag { border: 1px solid #999; font-size: 12px; padding: 2px 6px; margin-right: 4px; }
+.SelectionArea__other dl, .ConfirmationArea__cover dl { margin: 0; }
+.SelectionArea__other dt, .ConfirmationArea__cover dt { font-weight: bold; margin-top: 8px; }
+.SelectionArea__other dd, .ConfirmationArea__cover dd { margin: 0; }
+.CollectionMethod h2, .PaymentMethod h2, .SmartSetting h2 { background: #eee; margin: 24px -16px 12px; padding: 16px; font-size: 20px; }
+.CollectionMethod__box label, .paymentMethodBox label { display: flex; align-items: center; gap: 10px; padding: 12px 6px; border-bottom: 1px solid var(--line); font-size: 16px; }
+.PaymentMethod p.detail { margin: 16px 0; }
+.PaymentMethod__main__explanation { margin: 20px 0; line-height: 1.7; }
+.PaymentMethod__main__explanation h4 { margin: 0 0 6px; }
+.SettingText, .ExpText { line-height: 1.7; }
+.ExpText { color: #666; font-size: 13px; }
+.SmartSetting dl { margin: 16px 0; } .SmartSetting dt { font-weight: bold; margin-bottom: 6px; }
+.SmartSetting input { width: 100%; font-size: 18px; padding: 12px; box-sizing: border-box; }
+.InforInput { margin-top: 28px; }
+.ConfirmationArea .note { color: #c8336b; font-weight: bold; background: none; border: 0; padding: 0; margin: 8px 0; }
+.ConfirmationArea .explanation { font-size: 13px; color: #555; line-height: 1.7; }
+.ReservationScreen__cover { background: #eee; margin: 24px -16px 0; padding: 14px 16px; }
+.ReservationScreen__cover h3 { margin: 0; font-size: 20px; }
+.ReservationScreen__content, .ReservationScreen__info { padding: 16px 0; line-height: 1.7; }
+.ReservationScreen__content__list { border-bottom: 1px solid var(--line); padding: 8px 0; }
+.ContentName { font-weight: bold; margin: 0 0 4px; }
+.ReservationScreen__content__total { text-align: right; font-size: 20px; padding: 12px 0; }
+.ReservationScreen__content__total b { color: #c8336b; margin-left: 12px; }
+.ReservationScreen__must-read { padding-top: 24px; }
+.AgreementRequired { color: #c8336b; margin: 0 0 8px; }
+.AgreementText { font-size: 13px; line-height: 1.8; }
+.ReservationScreen__must-read__select { margin-top: 24px; }
+.small { font-size: 12px; color: #666; }
+.SmartSetting dd { margin: 0; }

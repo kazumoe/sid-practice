@@ -12,39 +12,68 @@
 <body>
 <div class="ph">れんしゅうチケット<small>練習用の架空のサイト</small></div>
 <main>
-  <h1>引取／支払方法の選択</h1>
-  <p class="filler" id="sel"></p>
-
-  <section class="CollectionMethod">
-    <h2>引取方法の選択</h2>
-    <div id="TAKE_OVER_MTHD_SEL">
-      <label class="choice"><input type="radio" name="TAKE_OVER_MTHD_SEL" id="TAKE_OVER_MTHD_SEL-1" value="1" checked>店頭</label>
-      <label class="choice"><input type="radio" name="TAKE_OVER_MTHD_SEL" id="TAKE_OVER_MTHD_SEL-3" value="3">電子チケット</label>
-    </div>
+  <!-- 本物（2026/11/7 MONKEY MAJIK）と同じ並び・同じ部品の名前。案内版 v1.8.3 の「詰める」がそのまま効く -->
+  <div class="TransitionMenu"><span class="on">申込情報</span><span>内容確認</span><span>完了</span></div>
+  <section class="SelectionArea">
+    <div class="area_inner"><div class="SelectionArea__main"><h1 class="SelectionArea__main__SelectTitle">引取方法・支払方法の選択</h1></div></div>
+    <div class="main_inner"><div class="SelectionArea__main">
+      <ol id="errorMsgList"><li class="err" id="err"></li></ol>
+      <div class="SelectionArea__cover">
+        <h2 class="SelectionArea__cover__Title">サンプルバンド</h2>
+        <ul class="SelectionArea__cover__List"><li class="tag">先着</li><li class="tag">一般販売</li></ul>
+        <p class="small">受付期間：開始ボタンの時刻 ～ 2099/11/20 22:00</p>
+      </div>
+      <div class="SelectionArea__other"><dl>
+        <dt>公演日：</dt><dd id="selDate"></dd>
+        <dt>会場：</dt><dd>れんしゅうホール(東京都)</dd>
+        <dt>席種/券種・枚数：</dt><dd id="sel"></dd>
+      </dl></div>
+    </div></div>
   </section>
 
-  <section class="PaymentMethod">
+  <section class="CollectionMethod"><div class="CollectionMethod__main">
+    <h2>引取方法の選択</h2>
+    <div id="TAKE_OVER_MTHD_SEL" class="CollectionMethod__box radioClickArea">
+      <label><input type="radio" name="TAKE_OVER_MTHD_SEL" id="TAKE_OVER_MTHD_SEL-1" value="1" checked>店頭</label>
+      <label><input type="radio" name="TAKE_OVER_MTHD_SEL" id="TAKE_OVER_MTHD_SEL-3" value="3">電子チケット</label>
+    </div>
+  </div></section>
+
+  <section class="PaymentMethod"><div class="PaymentMethod__main">
     <h2>支払方法の選択</h2>
     <div class="PaymentMethod__main__box paymentMethodBox">
-      <label class="choice"><input type="radio" name="PAYMENT_MTHD_SEL" id="PAYMENT_MTHD_SEL-15" value="15">PayPay</label>
-      <label class="choice"><input type="radio" name="PAYMENT_MTHD_SEL" id="PAYMENT_MTHD_SEL-16" value="16">楽天ペイ</label>
-      <label class="choice"><input type="radio" name="PAYMENT_MTHD_SEL" id="PAYMENT_MTHD_SEL-02" value="02">クレジットカード</label>
-      <label class="choice"><input type="radio" name="PAYMENT_MTHD_SEL" id="PAYMENT_MTHD_SEL-03" value="03">店頭入金</label>
-      <label class="choice"><input type="radio" name="PAYMENT_MTHD_SEL" id="PAYMENT_MTHD_SEL-12" value="12">d払い</label>
+      <label><input type="radio" name="PAYMENT_MTHD_SEL" id="PAYMENT_MTHD_SEL-15" value="15">PayPay</label>
+      <label><input type="radio" name="PAYMENT_MTHD_SEL" id="PAYMENT_MTHD_SEL-16" value="16">楽天ペイ</label>
+      <label><input type="radio" name="PAYMENT_MTHD_SEL" id="PAYMENT_MTHD_SEL-02" value="02">クレジットカード</label>
+      <label><input type="radio" name="PAYMENT_MTHD_SEL" id="PAYMENT_MTHD_SEL-03" value="03">店頭入金</label>
+      <label><input type="radio" name="PAYMENT_MTHD_SEL" id="PAYMENT_MTHD_SEL-12" value="12">d払い</label>
+      <label><input type="radio" name="PAYMENT_MTHD_SEL" id="PAYMENT_MTHD_SEL-13" value="13">au PAY（au かんたん決済）</label>
+      <label><input type="radio" name="PAYMENT_MTHD_SEL" id="PAYMENT_MTHD_SEL-14" value="14">ソフトバンクまとめて支払</label>
     </div>
-  </section>
+    <p class="detail"><a href="javascript:void(0)" class="method_link">支払方法について</a></p>
+    <div class="PaymentMethod__main__explanation" data-for="15"><h4>PayPay</h4><p>PayPayアプリにて、選択された「残高」または「クレジット」にてお支払いいただく方法です。<br><br>お申込み確定した時点で、決済が完了となります。<br>不足金額がないか、また、ご自身で設定した利用可能額および上限金額をあらかじめご確認をお願いします。</p><p style="color:#c00">（注）PayPay支払い完了後、自動的にサイトに戻りますのでお待ちください。自動的に戻る前に画面を閉じた場合、お申込みが不成立になる可能性があります。（練習用の文面です）</p></div>
+    <div class="PaymentMethod__main__explanation" data-for="16"><h4>楽天ペイ</h4><p>楽天IDに登録したクレジットカード情報のほか、楽天ポイント、楽天ペイ残高にてお支払いが可能です。<br><br>※ご購入時に即時決済となります。（練習用の文面です）</p></div>
+    <div class="PaymentMethod__main__explanation" data-for="02"><h4>クレジットカードについて</h4><p>カード発行会社での本人認証サービス(3Dセキュア2.0)の登録が必要です。登録が無いクレジットカードはご利用いただけません。<br>※ご購入時に即時決済となります。<br>※クレジット機能付きデビットカード、プリペイドカードについては一部ご利用いただけないものがございます。<br>※海外発行カードはご利用になれない場合がございます。<br>上記の内容は各受付にて異なる場合がございます。（練習用の文面です）</p></div>
+    <div class="PaymentMethod__main__explanation" data-for="03"><h4>店頭入金</h4><p>お近くのコンビニで代金のお支払いが可能です。<br>ただし、興行によってご利用可能な店舗が限られる場合がございます。その場合はマイページでお知らせしておりますので、必ずお支払いの前にご確認ください。（練習用の文面です）</p></div>
+    <div class="PaymentMethod__main__explanation" data-for="12"><h4>d払い</h4><p>※ご購入時に即時決済となります。<br>※決済システム利用料は払戻対象ではありません。<br>※キャリア決済は各携帯キャリアごとにご利用限度額がございます。（練習用の文面です）</p></div>
+    <div class="PaymentMethod__main__explanation" data-for="13"><h4>au PAY（au かんたん決済）</h4><p>※ご購入時に即時決済となります。<br>※パソコンおよびWi-Fi接続中の携帯電話からはご利用いただけません。（練習用の文面です）</p></div>
+    <div class="PaymentMethod__main__explanation" data-for="14"><h4>ソフトバンクまとめて支払</h4><p>※ご購入時に即時決済となります。<br>※決済システム利用料は払戻対象ではありません。（練習用の文面です）</p></div>
+  </div></section>
 
-  <section id="telBox" style="display:none">
-    <h2>スマートフォン電話番号（半角数字）</h2>
-    <p class="filler">申込者ご本人の電話番号をご入力ください。この欄は本物と同じく貼り付けができません。</p>
-    <input type="text" maxlength="11" inputmode="numeric" onpaste="return false" id="EL_TAKE_OVER_FR_TEL" name="EL_TAKE_OVER_FR_TEL" placeholder="ハイフン無しで半角数字を入力">
-    <h2>スマートフォン電話番号 確認</h2>
-    <input type="text" maxlength="11" inputmode="numeric" onpaste="return false" id="EL_TAKE_OVER_FR_TEL_CNF" name="EL_TAKE_OVER_FR_TEL_CNF" placeholder="ハイフン無しで半角数字を入力">
-  </section>
+  <section class="eTktBox SmartSetting" id="telBox" style="display:none"><div class="SmartSetting__main">
+    <h2>電子チケットの電話番号登録</h2>
+    <div class="SmartSetting__main__cover">
+      <p class="SettingText">申込者ご本人の電話番号をご入力ください。<br>ご登録された電話番号のスマートフォンのみで電子チケットをご利用いただけます。<br>なお、代理でのお申し込みはできません。</p>
+      <p class="ExpText">※090/080/070/060から始まる日本国内の電話番号が電子チケットの動作対象です。<br>電子チケット対応機種の詳細はこちらをご覧ください。（練習用の文面です）</p>
+      <dl><dt class="sp-number">スマートフォン電話番号（半角数字）</dt><dd><input type="text" maxlength="11" inputmode="numeric" onpaste="return false" id="EL_TAKE_OVER_FR_TEL" name="EL_TAKE_OVER_FR_TEL" placeholder="ハイフン無しで半角数字を入力"></dd></dl>
+      <dl><dt>スマートフォン電話番号 確認</dt><dd><input type="text" maxlength="11" inputmode="numeric" onpaste="return false" id="EL_TAKE_OVER_FR_TEL_CNF" name="EL_TAKE_OVER_FR_TEL_CNF" placeholder="ハイフン無しで半角数字を入力"></dd></dl>
+    </div>
+  </div></section>
 
-  <p class="err" id="err"></p>
-  <button type="button" id="NEXT_BUTTON" class="Button -primary">次へ</button>
-  <button type="button" id="TKT_RE_SEL" class="Button">チケットを選びなおす</button>
+  <section class="InforInput"><div class="infor_inner"><div class="InforInput__cover"><div class="InforInput__cover__select">
+    <button type="button" id="NEXT_BUTTON" class="Button -primary">次へ</button>
+    <button type="button" id="TKT_RE_SEL" class="Button">チケットを選びなおす</button>
+  </div></div></div></section>
 </main>
 
 <!-- 同意の画面（電子チケットの注意事項） -->
@@ -62,13 +91,27 @@
 <script>
 (() => {
   const cart = P.get('cart', null);
-  document.getElementById('sel').textContent = cart ? `${cart.disp} 開演${cart.start} ${cart.seatName || '全席指定'} × ${cart.count}枚` : '（選択中のチケットがありません）';
+  document.getElementById('sel').textContent = cart ? `${cart.seatName || '全席指定'} ${cart.count}枚` : '（選択中のチケットがありません）';
+  document.getElementById('selDate').textContent = cart ? `${cart.disp} [開演]${cart.start}` : '';
+  // 選んだ支払方法の説明だけを出す（本物と同じ。最初は前回の選択の説明が出ている）
+  const showExp = () => {
+    const v = document.querySelector('input[name=PAYMENT_MTHD_SEL]:checked')?.value;
+    document.querySelectorAll('.PaymentMethod__main__explanation').forEach((d) => (d.style.display = d.dataset.for === v ? '' : 'none'));
+  };
+  document.querySelectorAll('input[name=PAYMENT_MTHD_SEL]').forEach((r) => r.addEventListener('change', showExp));
   // 本物では前回の選択が残っていることがあるので、支払方法をランダムに選んだ状態で始める
   const pre = ['PAYMENT_MTHD_SEL-15', 'PAYMENT_MTHD_SEL-03', null][Math.floor(Math.random() * 3)];
   if (pre) document.getElementById(pre).checked = true;
+  showExp();
 
+  // 「引取方法に電子チケットがない公演」の設定（ILLIT 10/31 は「店頭」だけだった）
+  const cfg = P.cfg();
+  if (cfg.noETicket) {
+    document.getElementById('TAKE_OVER_MTHD_SEL-3').closest('label').remove();
+    document.getElementById('TAKE_OVER_MTHD_SEL-1').checked = true;
+  }
   const telBox = document.getElementById('telBox');
-  const sync = () => { telBox.style.display = document.getElementById('TAKE_OVER_MTHD_SEL-3').checked ? '' : 'none'; };
+  const sync = () => { telBox.style.display = document.getElementById('TAKE_OVER_MTHD_SEL-3')?.checked ? '' : 'none'; };
   document.querySelectorAll('input[name=TAKE_OVER_MTHD_SEL]').forEach((r) => r.addEventListener('change', sync));
   sync();
 
@@ -78,21 +121,27 @@
     const take = document.querySelector('input[name=TAKE_OVER_MTHD_SEL]:checked')?.value;
     const pay = document.querySelector('input[name=PAYMENT_MTHD_SEL]:checked')?.value;
     const t1 = document.getElementById('EL_TAKE_OVER_FR_TEL').value, t2 = document.getElementById('EL_TAKE_OVER_FR_TEL_CNF').value;
-    if (take !== '3') return (err.textContent = 'この公演は電子チケットのみです。引取方法で「電子チケット」を選んでください。');
+    if (!cfg.noETicket && take !== '3') return (err.textContent = 'この公演は電子チケットのみです。引取方法で「電子チケット」を選んでください。');
     if (!pay) return (err.textContent = '支払方法を選んでください。');
-    if (!/^\d{11}$/.test(t1)) return (err.textContent = '電話番号をハイフンなし11桁で入力してください。');
-    if (t1 !== t2) return (err.textContent = '確認用の電話番号が一致しません。');
+    if (take === '3') {
+      if (!/^\d{11}$/.test(t1)) return (err.textContent = '電話番号をハイフンなし11桁で入力してください。');
+      if (t1 !== t2) return (err.textContent = '確認用の電話番号が一致しません。');
+    }
     err.textContent = '';
     P.set('payment', pay);
-    modal.classList.add('is-open');
+    P.set('take', take === '3' ? '電子チケット' : '店頭');
+    // 電子チケットのときだけ、注意事項の同意の画面が出る
+    if (take === '3') modal.classList.add('is-open'); else goNext();
   });
-  modal.querySelector('.submit-next').addEventListener('click', () => {
+  // 次の画面：アンケート（設定がオンなら）→ 先着予約確認
+  const goNext = () => {
     // 電話番号は保存しない
     document.getElementById('EL_TAKE_OVER_FR_TEL').value = '';
     document.getElementById('EL_TAKE_OVER_FR_TEL_CNF').value = '';
-    P.mark('引取／支払方法の「次へ」→ 同意');
-    location.href = 'confirm.html';
-  });
+    P.mark('引取／支払方法の「次へ」');
+    location.href = cfg.question ? 'question.html' : 'confirm.html';
+  };
+  modal.querySelector('.submit-next').addEventListener('click', goNext);
   modal.querySelector('.submit-back').addEventListener('click', () => modal.classList.remove('is-open'));
   document.getElementById('TKT_RE_SEL').addEventListener('click', () => { location.href = 'order.html?gLcode=99999'; });
 })();
