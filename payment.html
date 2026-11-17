@@ -70,6 +70,17 @@
     </div>
   </div></section>
 
+  <section id="questionArea" class="InforInput" style="display:none"><div class="infor_inner">
+    <h2>追加情報入力</h2>
+    <div class="InforInput__main"><h3>◆以下の内容を必ずお読みいただき、同意のうえお申込みください。</h3><p class="text">下記項目をご確認ください。</p></div>
+    <div class="InforInput__cover"><div class="InforInput__cover__content"><h3><span>必須</span> ＜注意事項＞</h3><p class="QuestionText">※チケットの譲渡や転売を含む不正行為は禁止です。<br>※出演者は都合により変更となる場合があります。<br>※公演日が近づいたら、ご来場時のお願いをご案内する場合があります。（練習用の文面です）</p></div>
+      <div class="InforInput__cover__select"><div class="cover_inner"><div class="InputBox"><label><input type="checkbox" name="q_1[]" id="q_1-同意する" value="同意する" class="FormTableList__input">同意する</label></div></div></div></div>
+    <div class="InforInput__cover"><div class="InforInput__cover__content"><h3><span>必須</span> 【ご購入に関して】</h3><p class="QuestionText">●有償無償にかかわらず、主催者の同意のない譲渡はできません。<br>●お申込時は、必ずご来場者ご本人様の情報をご登録ください。<br>●公演中止の場合を除き、払い戻しはできません。<br>●チケット代金のほか、各種手数料が必要です。（練習用の文面です）</p></div>
+      <div class="InforInput__cover__select"><div class="cover_inner"><div class="InputBox"><label><input type="checkbox" name="q_2[]" id="q_2-同意する" value="同意する" class="FormTableList__input">同意する</label></div></div></div></div>
+    <div class="InforInput__cover"><div class="InforInput__cover__content"><h3><span>必須</span> 【ご入場に関して】</h3><p class="QuestionText">●ご入場時に本人確認を行う場合があります。<br>●電子チケットは、申し込んだ本人のスマートフォンでのみ表示できます。<br>●開演後のご入場は、演出の都合でお待ちいただく場合があります。（練習用の文面です）</p></div>
+      <div class="InforInput__cover__select"><div class="cover_inner"><div class="InputBox"><label><input type="checkbox" name="q_3[]" id="q_3-同意する" value="同意する" class="FormTableList__input">同意する</label></div></div></div></div>
+  </div></section>
+
   <section class="InforInput"><div class="infor_inner"><div class="InforInput__cover"><div class="InforInput__cover__select">
     <button type="button" id="NEXT_BUTTON" class="Button -primary">次へ</button>
     <button type="button" id="TKT_RE_SEL" class="Button">チケットを選びなおす</button>
@@ -115,6 +126,8 @@
   document.querySelectorAll('input[name=TAKE_OVER_MTHD_SEL]').forEach((r) => r.addEventListener('change', sync));
   sync();
 
+  // 11/15版：追加情報入力（M!LK の抽選で出た形。必須の「同意する」が並ぶ）
+  if (cfg.addInfo) document.getElementById('questionArea').style.display = '';
   const modal = document.getElementById('signup-modal');
   const err = document.getElementById('err');
   document.getElementById('NEXT_BUTTON').addEventListener('click', () => {
@@ -127,6 +140,7 @@
       if (!/^\d{11}$/.test(t1)) return (err.textContent = '電話番号をハイフンなし11桁で入力してください。');
       if (t1 !== t2) return (err.textContent = '確認用の電話番号が一致しません。');
     }
+    if (cfg.addInfo && [...document.querySelectorAll('#questionArea input[type=checkbox]')].some((x) => !x.checked)) return (err.textContent = '追加情報入力の必須項目（同意する）にチェックしてください。');
     err.textContent = '';
     P.set('payment', pay);
     P.set('take', take === '3' ? '電子チケット' : '店頭');

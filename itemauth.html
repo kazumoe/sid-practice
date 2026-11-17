@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="ltg-practice" content="1">
+<title>アイテム認証（練習）｜れんしゅうチケット</title>
+<link rel="stylesheet" href="style.css">
+<script src="common.js"></script>
+<style>
+  #recognition_overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50}
+  #recognition_overlay .box{background:#fff;border-radius:8px;padding:16px;width:min(92vw,360px)}
+  .items{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+  .click_item{position:relative;border:2px solid #ccc;border-radius:6px;font-size:56px;text-align:center;padding:10px 0;cursor:pointer;user-select:none}
+  .click_item .img_item_selected{display:none;position:absolute;inset:0;background:rgba(43,111,94,.35);border-radius:4px;font-size:28px;color:#fff;align-items:center;justify-content:center}
+  .click_item.on{border-color:#2b6f5e}
+  .click_item.on .img_item_selected{display:flex}
+</style>
+</head>
+<body>
+<div class="ph">れんしゅうチケット<small>練習用の架空のサイト</small></div>
+<main>
+  <h1>アイテム認証</h1>
+  <p class="filler">不正なお申し込みを防ぐため、画像による認証を行います。［アイテム認証を行う］を押し、指定されたアイテムの絵を選んでください。（練習用の絵で、本物とは違います）</p>
+  <button type="button" id="btn_recognition" class="Button -primary">アイテム認証を行う</button>
+  <p id="doneMsg" class="filler" style="display:none;color:#2b6f5e">✔ アイテムを選びました</p>
+  <input type="hidden" id="IMG_CHAR" name="IMG_CHAR" value="">
+  <p class="err" id="err"></p>
+  <button type="button" id="NEXT_BUTTON" class="Button -primary">次へ</button>
+</main>
+<div id="recognition_overlay">
+  <div class="box">
+    <p id="overlay_text"></p>
+    <div class="items">
+      <div class="click_item" id="f1"><span class="pic"></span><span class="img_item_selected">✔</span></div>
+      <div class="click_item" id="f2"><span class="pic"></span><span class="img_item_selected">✔</span></div>
+      <div class="click_item" id="f3"><span class="pic"></span><span class="img_item_selected">✔</span></div>
+      <div class="click_item" id="f4"><span class="pic"></span><span class="img_item_selected">✔</span></div>
+    </div>
+    <button type="button" id="btn_reload" class="Button" style="width:auto;padding:6px 12px">絵を替える</button>
+    <button type="button" id="btn_return" class="Button -primary">決定</button>
+  </div>
+</div>
+<script>
+(() => {
+  // 練習用の絵（本物の絵とは別のもの）
+  const PICS = [['🍎', 'りんご'], ['🚲', '自転車'], ['🎸', 'ギター'], ['☂️', '傘'], ['🐟', '魚'], ['⏰', '時計'], ['🎩', '帽子'], ['🔑', '鍵']];
+  const overlay = document.getElementById('recognition_overlay');
+  const cells = [...document.querySelectorAll('.click_item')];
+  let answer = null;
+  const deal = () => {
+    const pick = [...PICS].sort(() => Math.random() - 0.5).slice(0, 4);
+    answer = pick[Math.floor(Math.random() * 4)];
+    document.getElementById('overlay_text').textContent = `『${answer[1]}』の絵を選んでください。`;
+    cells.forEach((c, i) => { c.querySelector('.pic').textContent = pick[i][0]; c.dataset.name = pick[i][1]; c.classList.remove('on'); });
+  };
+  cells.forEach((c) => c.addEventListener('click', () => { cells.forEach((x) => x.classList.remove('on')); c.classList.add('on'); }));
+  document.getElementById('btn_recognition').addEventListener('click', () => { deal(); overlay.style.display = 'flex'; });
+  document.getElementById('btn_reload').addEventListener('click', deal);
+  document.getElementById('btn_return').addEventListener('click', () => {
+    const on = cells.find((c) => c.classList.contains('on'));
+    if (!on) return;
+    document.getElementById('IMG_CHAR').value = on.dataset.name;
+    document.getElementById('IMG_CHAR').dataset.ok = on.dataset.name === answer[1] ? '1' : '';
+    overlay.style.display = 'none';
+    document.getElementById('doneMsg').style.display = '';
+  });
+  document.getElementById('NEXT_BUTTON').addEventListener('click', () => {
+    const v = document.getElementById('IMG_CHAR');
+    const err = document.getElementById('err');
+    if (!v.value) return (err.textContent = 'アイテム認証を行ってください。');
+    if (!v.dataset.ok) { v.value = ''; document.getElementById('doneMsg').style.display = 'none'; return (err.textContent = '選んだアイテムが違います。もう一度アイテム認証を行ってください。'); }
+    P.mark('アイテム認証の「次へ」');
+    location.href = 'payment.html';
+  });
+})();
+</script>
+</body>
+</html>

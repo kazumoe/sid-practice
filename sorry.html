@@ -20,6 +20,7 @@
 </main>
 <script>
   // 本物と同じく、直前の公演ページのURL（クッキー）があればそこを新しく開く。なければブラウザの「戻る」
+  P.set('fromSorry', true);
   document.getElementById('back').addEventListener('click', () => {
     const m = document.cookie.split(';').map((c) => c.trim().split('=')).find(([k]) => k === 'ScheduleUrl');
     P.set('fromSorry', true);
@@ -27,6 +28,7 @@
       document.cookie = 'ScheduleUrl=;path=/;max-age=0';
       location.href = decodeURIComponent(m[1]);
     } else {
+      P.set('stale', true); // 古い画面に戻る印（公演ページ側で「申し込みへ進む」を押せないままにする）
       history.back();
     }
   });

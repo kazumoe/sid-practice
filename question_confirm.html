@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="ltg-practice" content="1">
+<title>アンケート確認（練習）｜れんしゅうチケット</title>
+<link rel="stylesheet" href="style.css">
+<script src="common.js"></script>
+</head>
+<body>
+<div class="ph">れんしゅうチケット<small>練習用の架空のサイト</small></div>
+<main>
+  <div class="steps" style="display:flex;gap:6px;font-size:12px;color:#666;margin-bottom:8px"><b style="color:#2b6f5e">申込情報</b><span>›</span><span>内容確認</span><span>›</span><span>完了</span></div>
+  <h1>アンケート確認</h1>
+  <p class="filler">回答内容をご確認ください。まだお申し込みは完了していません。</p>
+  <form id="ttd0801" name="ttd0801" onsubmit="return false">
+    <table class="sum">
+      <tr><td>Q1. 注意事項への同意</td><td>同意して申込する</td></tr>
+      <tr><td>Q2. この公演を何で知りましたか？</td><td>（回答済み）</td></tr>
+    </table>
+    <button type="button" id="NEXT" name="NEXT" class="Button -primary">次へ</button>
+    <button type="button" id="BACK" name="BACK" class="Button">変更</button>
+  </form>
+</main>
+<script>
+(() => {
+  document.getElementById('NEXT').addEventListener('click', () => { P.mark('アンケート確認の「次へ」'); location.href = 'confirm.html'; });
+  document.getElementById('BACK').addEventListener('click', () => { location.href = 'question.html'; });
+})();
+</script>
+</body>
+</html>

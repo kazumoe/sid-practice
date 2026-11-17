@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="ltg-practice" content="1">
+<title>アンケート入力（練習）｜れんしゅうチケット</title>
+<link rel="stylesheet" href="style.css">
+<script src="common.js"></script>
+</head>
+<body>
+<div class="ph">れんしゅうチケット<small>練習用の架空のサイト</small></div>
+<main>
+  <!-- 本物（ENHYPEN 10/31）も、この時点で上に「申込情報 内容確認 完了」の進み具合が出る。まだ完了ではない -->
+  <div class="steps" style="display:flex;gap:6px;font-size:12px;color:#666;margin-bottom:8px"><b style="color:#2b6f5e">申込情報</b><span>›</span><span>内容確認</span><span>›</span><span>完了</span></div>
+  <h1>アンケート入力</h1>
+  <p class="filler">以下の質問にお答えください。<span style="color:#c00">※</span>は必須項目です。</p>
+  <form id="ttd070" name="ttd070" onsubmit="return false">
+    <h2>Q1. 注意事項への同意<span style="color:#c00">※</span></h2>
+    <div class="filler"><p>・本公演は、お申し込みいただいた方ご本人の入場に限ります。</p><p>・入場時に本人確認を行う場合があります。</p><p>・転売目的のお申し込みは無効とします。（練習用の文面です）</p></div>
+    <label class="choice"><input type="checkbox" name="q_1[]" value="1"> 同意して申込する</label>
+    <h2>Q2. この公演を何で知りましたか？<span style="color:#c00">※</span></h2>
+    <label class="choice"><input type="checkbox" name="q_2[]" value="1"> 公式サイト</label>
+    <label class="choice"><input type="checkbox" name="q_2[]" value="2"> SNS</label>
+    <label class="choice"><input type="checkbox" name="q_2[]" value="3"> その他</label>
+    <p class="err" id="err"></p>
+    <button type="button" id="NEXT" name="NEXT" class="Button -primary">次へ</button>
+    <button type="button" id="BACK" name="BACK" class="Button">戻る</button>
+  </form>
+</main>
+<script>
+(() => {
+  const ok = (n) => [...document.querySelectorAll(`input[name="${n}"]`)].some((x) => x.checked);
+  document.getElementById('NEXT').addEventListener('click', () => {
+    if (!ok('q_1[]') || !ok('q_2[]')) { document.getElementById('err').textContent = '必須の質問に答えてください。'; return; }
+    P.mark('アンケート入力の「次へ」');
+    location.href = 'question_confirm.html';
+  });
+  document.getElementById('BACK').addEventListener('click', () => { location.href = 'payment.html'; });
+})();
+</script>
+</body>
+</html>

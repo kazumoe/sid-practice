@@ -14,6 +14,13 @@
   <h1>練習の設定</h1>
   <p class="note">このサイトは練習用の架空のサイトです。本番と同じように、自分の情報（メールアドレス・電話番号・カード名義など）を入れて練習できます。入力した内容はこのスマホの画面の中だけで使い、どこにも送信・保存しません（次のページへ進むときや、ページを離れるときに消します）。<br>Safariに「パスワードを保存しますか？」と聞かれたら「保存しない」を選んでください（このサイト用に保存する必要はありません）。</p>
 
+  <h2>かんたん設定（本番で起きた形をまとめて入れる）</h2>
+  <p class="filler">押すと下の設定がその形に変わります（そのあと自分で変えてもよい）。最後に「練習を始める」を押してください。</p>
+  <button type="button" class="Button preset" data-preset="spyair">11/15 SPYAIR型：第1希望は申し込むと予約枚数終了 → 次の希望へ</button>
+  <button type="button" class="Button preset" data-preset="navillera">11/14 ナビレラ型：混み合っています＋アクセス集中が続く</button>
+  <button type="button" class="Button preset" data-preset="smooth">すんなり型：じゃまなし（タップの速さだけを測る）</button>
+  <p class="filler" id="presetMsg"></p>
+
   <h2>発売までの時間</h2>
   <label class="choice">開始ボタンを押してから <input id="delaySec" type="number" min="5" max="600" style="width:5em"> 秒後に発売</label>
 
@@ -21,6 +28,8 @@
   <label class="choice">「申し込みへ進む」でアクセス集中の画面になる確率 <input id="sorryRate" type="number" min="0" max="100" style="width:4em"> %</label>
   <label class="choice"><input id="sorryWait" type="checkbox"> アクセス集中の画面になる前に4〜10秒待たされる（11/7 の本物と同じ）</label>
   <label class="choice"><input id="sorryKeepCart" type="checkbox"> アクセス集中の画面から戻ったとき、選んだ席をカートに残す（11/7 の本物は残らず、選び直しだった）</label>
+  <label class="choice">アクセス集中から公演ページを開き直しても、またアクセス集中になる確率 <input id="reopenSorryRate" type="number" min="0" max="100" style="width:4em"> %（11/14 ナビレラ）</label>
+  <label class="choice"><input id="sorryNoCookie" type="checkbox"> アクセス集中の画面の「前のページに戻る」が古い画面に戻る（「申し込みへ進む」が押せない画面の練習。帯のボタンで戻れば起きない）</label>
   <label class="choice">タブを押したとき「混み合っています」が出る確率 <input id="busyRate" type="number" min="0" max="100" style="width:4em"> %</label>
   <label class="choice"><input id="needLogin" type="checkbox"> ログイン画面を出す（ログインしていない状態の練習）</label>
   <label class="choice"><input id="sold29" type="checkbox"> 11/29(日) を売り切れにする（第2希望へ回る練習）</label>
@@ -38,6 +47,7 @@
   <h2>申し込みの途中の画面</h2>
   <label class="choice"><input id="itemAuth" type="checkbox"> アイテム認証（絵を選ぶ認証）を出す（M!LKの抽選で出た画面の練習。絵は練習用）</label>
   <label class="choice"><input id="noETicket" type="checkbox"> 引取方法に「電子チケット」がない公演にする（ILLITと同じ「店頭」だけ。電話番号の欄も出ない）</label>
+  <label class="choice"><input id="addInfo" type="checkbox"> 引取／支払の画面に「追加情報入力」を出す（必須の「同意する」が3つ。M!LKの抽選と同じ形）</label>
   <label class="choice"><input id="question" type="checkbox"> アンケート画面を出す（ENHYPENと同じ。入力 → 確認の2画面）</label>
   <label class="choice"><input id="longConfirm" type="checkbox"> 「先着予約確認」を本物と同じ長さにする（ボタンが下の方。ユニコーンと同じ）</label>
   <h2>在庫の出方</h2>
@@ -51,8 +61,8 @@
 </main>
 <script>
   const c = P.cfg();
-  for (const k of ['delaySec', 'sorryRate', 'busyRate']) document.getElementById(k).value = c[k];
-  for (const k of ['needLogin', 'sold29', 'sold28', 'hideSold', 'slowRes', 'twoShows', 'soldShow1', 'seats4', 'renameSeats', 'itemAuth', 'noETicket', 'question', 'longConfirm', 'sorryWait', 'sorryKeepCart']) document.getElementById(k).checked = !!c[k];
+  for (const k of ['delaySec', 'sorryRate', 'busyRate', 'reopenSorryRate']) document.getElementById(k).value = c[k];
+  for (const k of ['needLogin', 'sold29', 'sold28', 'hideSold', 'slowRes', 'twoShows', 'soldShow1', 'seats4', 'renameSeats', 'itemAuth', 'noETicket', 'question', 'longConfirm', 'sorryWait', 'sorryKeepCart', 'sorryNoCookie', 'addInfo']) document.getElementById(k).checked = !!c[k];
   // 売り切れにする席の表（行＝席種、列＝公演）
   const SEATN = [['001', '指定席'], ['004', '注釈付指定席'], ['005', '立ち位置指定'], ['006', '注釈付立ち位置指定']];
   const SHOWN = [['P29A', '11/29 1部'], ['P29', '11/29 2部<br><small>(1公演の日はこれ)</small>'], ['P28', '11/28']];
@@ -62,6 +72,25 @@
       SHOWN.map(([k]) => `<td style="text-align:center"><input type="checkbox" class="soldSeat" value="${k}|${cd}"${(c.soldSeats || []).includes(`${k}|${cd}`) ? ' checked' : ''}></td>`).join('') + '</tr>').join('');
   const mode0 = ['A', 'B', 'C'].includes(c.stockMode) ? c.stockMode : (c.blankStock ? 'C' : 'B');
   document.querySelector(`input[name=stockMode][value=${mode0}]`).checked = true;
+  // かんたん設定：本番で起きた形を、下の設定にまとめて入れる（入れるだけ。始めるのは「練習を始める」）
+  const PRESETS = {
+    // 第1希望（11/29 立ち位置指定）は、申し込むと「予約枚数終了」。在庫の欄は空（タブを押しても分からない）
+    spyair: { name: '11/15 SPYAIR型', num: { sorryRate: 0, busyRate: 0, reopenSorryRate: 0 }, on: ['seats4', 'longConfirm'],
+      off: ['needLogin', 'sold29', 'sold28', 'hideSold', 'twoShows', 'renameSeats', 'itemAuth', 'noETicket', 'question', 'slowRes', 'sorryNoCookie', 'addInfo'], mode: 'C', sold: ['P29|005'] },
+    navillera: { name: '11/14 ナビレラ型', num: { sorryRate: 60, busyRate: 50, reopenSorryRate: 40 }, on: ['seats4', 'longConfirm', 'sorryWait', 'twoShows'],
+      off: ['needLogin', 'sold29', 'sold28', 'hideSold', 'renameSeats', 'itemAuth', 'noETicket', 'question', 'slowRes', 'sorryNoCookie', 'sorryKeepCart', 'addInfo', 'soldShow1'], mode: 'B', sold: ['P29A|005', 'P29A|006'] },
+    smooth: { name: 'すんなり型', num: { sorryRate: 0, busyRate: 0, reopenSorryRate: 0 }, on: ['seats4', 'longConfirm'],
+      off: ['needLogin', 'sold29', 'sold28', 'hideSold', 'twoShows', 'renameSeats', 'itemAuth', 'noETicket', 'question', 'slowRes', 'sorryNoCookie', 'addInfo'], mode: 'A', sold: [] },
+  };
+  document.querySelectorAll('.preset').forEach((btn) => btn.addEventListener('click', () => {
+    const p = PRESETS[btn.dataset.preset];
+    Object.entries(p.num).forEach(([k, val]) => { document.getElementById(k).value = val; });
+    p.on.forEach((k) => { document.getElementById(k).checked = true; });
+    p.off.forEach((k) => { document.getElementById(k).checked = false; });
+    document.querySelector(`input[name=stockMode][value=${p.mode}]`).checked = true;
+    document.querySelectorAll('.soldSeat').forEach((x) => { x.checked = p.sold.includes(x.value); });
+    document.getElementById('presetMsg').textContent = `「${p.name}」の設定を入れました。下の「練習を始める」を押してください。`;
+  }));
   document.getElementById('start').addEventListener('click', () => {
     const v = (id) => Number(document.getElementById(id).value) || 0;
     const b = (id) => document.getElementById(id).checked;
@@ -70,6 +99,7 @@
       stockMode: document.querySelector('input[name=stockMode]:checked')?.value || 'C', slowRes: b('slowRes'), twoShows: b('twoShows'),
       soldShow1: b('soldShow1'), seats4: b('seats4'), renameSeats: b('renameSeats'),
       itemAuth: b('itemAuth'), noETicket: b('noETicket'), question: b('question'), longConfirm: b('longConfirm'), sorryWait: b('sorryWait'), sorryKeepCart: b('sorryKeepCart'),
+      reopenSorryRate: v('reopenSorryRate'), sorryNoCookie: b('sorryNoCookie'), addInfo: b('addInfo'),
       soldSeats: [...document.querySelectorAll('.soldSeat:checked')].map((x) => x.value) };
     cfg.blankStock = cfg.stockMode === 'C';
     cfg.startAt = Date.now() + cfg.delaySec * 1000;

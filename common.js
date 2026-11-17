@@ -10,7 +10,9 @@ window.P = (() => {
 
   const DEFAULT = { delaySec: 20, sorryRate: 30, busyRate: 20, needLogin: true, sold29: false, sold28: false, hideSold: false, blankStock: true, stockMode: 'C', slowRes: false, twoShows: false, soldShow1: true, seats4: true, renameSeats: false, soldSeats: [],
     question: false, longConfirm: true, itemAuth: false, noETicket: false,
-    sorryWait: true, sorryKeepCart: false, startAt: 0 };
+    sorryWait: true, sorryKeepCart: false, startAt: 0,
+    // 11/15版：開き直してもまたアクセス集中になる確率／サイトの「前のページに戻る」が古い画面に戻る／追加情報入力（同意のチェック）
+    reopenSorryRate: 0, sorryNoCookie: false, addInfo: false };
   const cfg = () => Object.assign({}, DEFAULT, get('cfg', {}));
   const chance = (pct) => Math.random() * 100 < Number(pct || 0);
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -29,7 +31,9 @@ window.P = (() => {
   // 本物と同じく、アクセス集中の画面は「直前の公演ページのURL」をクッキーに覚えて戻れるようにする
   const toSorry = () => {
     const url = location.origin + location.pathname.replace(/[^/]*$/, '') + 'order.html?gLcode=99999';
-    document.cookie = 'ScheduleUrl=' + encodeURIComponent(url) + ';path=/;max-age=600';
+    // 設定「古い画面に戻る」がオンのときはクッキーを残さない（本物でもクッキーがないことがあり、そのときはブラウザの「戻る」と同じ動きになる）
+    if (cfg().sorryNoCookie) document.cookie = 'ScheduleUrl=;path=/;max-age=0';
+    else document.cookie = 'ScheduleUrl=' + encodeURIComponent(url) + ';path=/;max-age=600';
     mark('アクセス集中の画面');
     location.href = 'sorry.html';
   };
@@ -51,7 +55,7 @@ window.P = (() => {
     location.href = c.itemAuth ? 'itemauth.html' : 'payment.html';
   };
 
-  const reset = () => { ['cart', 'marks', 'flowStart', 'payment', 'fromSorry', 'take'].forEach(del); sdel('loggedIn'); };
+  const reset = () => { ['cart', 'marks', 'flowStart', 'payment', 'fromSorry', 'take', 'stale'].forEach(del); sdel('loggedIn'); };
 
   const openModal = (id) => document.getElementById(id)?.setAttribute('aria-hidden', 'false');
   const closeModal = (id) => document.getElementById(id)?.setAttribute('aria-hidden', 'true');

@@ -204,6 +204,15 @@
     });
   }
 
+  // 11/15版：「申し込みへ進む」を押した印（本物の isButtonApplied）。付いている間は、枚数を選び直しても押せない。
+  // アクセス集中の画面からブラウザの「戻る」と同じ動きで戻った古い画面では、この印が残る（読み込み直すと消える）
+  let applied = false;
+  {
+    const nav = (performance.getEntriesByType('navigation')[0] || {}).type;
+    if (nav !== 'back_forward') P.del('stale');
+    if (P.get('stale', false)) applied = true;
+    window.addEventListener('pageshow', (e) => { if (e.persisted && P.get('stale', false)) { applied = true; document.getElementById('tsGo').setAttribute('disabled', 'true'); } });
+  }
   // 席を選ぶ
   let picking = null, pickingSeat = SEATS[0];
   const openTicketModal = (d, seat) => {
@@ -232,17 +241,23 @@
   document.getElementById('tsBack').addEventListener('click', () => P.closeModal('ticketselection-modal'));
   // 本物と同じく、枚数を選ぶまで「申し込みへ進む」は押せない見た目
   document.querySelector('#ticketselection-modal select').addEventListener('change', (e) => {
-    if (e.target.value === '0') document.getElementById('tsGo').setAttribute('disabled', 'true'); else document.getElementById('tsGo').removeAttribute('disabled');
+    if (e.target.value === '0' || applied) document.getElementById('tsGo').setAttribute('disabled', 'true'); else document.getElementById('tsGo').removeAttribute('disabled');
   });
   document.getElementById('tsHeadBack').addEventListener('click', () => P.closeModal('ticketselection-modal'));
   document.getElementById('tsGo').addEventListener('click', () => {
     const n = document.querySelector('#ticketselection-modal select').value;
     if (n === '0') { document.getElementById('tsErr').textContent = '枚数を選択してください。'; return; }
+    if (document.getElementById('tsGo').hasAttribute('disabled')) return; // 押した印が付いている間は反応しない（本物と同じ）
+    // 本物と同じく、一度押すと「押した印」が付いて押せなくなる（アクセス集中から古い画面に戻ると、押せないまま）
+    document.getElementById('tsGo').setAttribute('disabled', 'true');
+    applied = true;
     P.set('cart', { disp: picking.disp, start: picking.start, count: n, ymd: picking.ymd, key: picking.key,
       seatCd: pickingSeat.cd, seatName: pickingSeat.name, price: pickingSeat.price, sold: isSold(picking, pickingSeat) });
     P.submit();
   });
 
+  // 11/15版：アクセス集中の画面から開き直しても、またアクセス集中になることがある（11/14 ナビレラ）
+  if (launched && P.get('fromSorry', false) && P.chance(cfg.reopenSorryRate)) { P.toSorry(); return; }
   // アクセス集中の画面から戻ったときは、前の選択がカートに残っている（本物と同じ動き）
   const cart = P.get('cart', null);
   // ※11/7 の本物では、戻ったときカートは空だった（選び直し）。設定「カートを残す」がオンのときだけ残す
@@ -265,6 +280,7 @@
       if (d) { openTicketModal(d, seat); document.querySelector('#ticketselection-modal select').value = String(((data.tkt_cnt || [])[0] || [])[0] || '0'); }
     } catch (e) {}
   }
+  P.del('fromSorry');
   document.getElementById('cartGo').addEventListener('click', () => P.submit());
   document.getElementById('cartDel').addEventListener('click', () => { P.del('cart'); P.closeModal('cart-modal'); });
   document.getElementById('cartClose').addEventListener('click', () => P.closeModal('cart-modal'));
