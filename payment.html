@@ -157,7 +157,7 @@
   };
   modal.querySelector('.submit-next').addEventListener('click', goNext);
   modal.querySelector('.submit-back').addEventListener('click', () => modal.classList.remove('is-open'));
-  document.getElementById('TKT_RE_SEL').addEventListener('click', () => { location.href = 'order.html?gLcode=99999'; });
+  document.getElementById('TKT_RE_SEL').addEventListener('click', () => { location.href = P.orderUrl(); });
 })();
 </script>
 </body>

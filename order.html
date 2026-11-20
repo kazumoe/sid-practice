@@ -110,7 +110,15 @@
   //   A：ページを開いた時点で席と在庫が出ている  B：タブを押すと在庫を問い合わせ、返事が来てから出る  C：タブを押しても在庫の欄が空（シド）
   const MODE = ['A', 'B', 'C'].includes(cfg.stockMode) ? cfg.stockMode : (cfg.blankStock ? 'C' : 'B');
   // 1日の中の公演（本物と同じく、1つの日程の中に公演の数だけ AccordionBox__inner がある）
-  const SHOWS = [
+  const MILK = cfg.layout === 'milk';
+  // M!LK型（73512 と同じ形）：11/21(土) 18:00 の1公演、11/22(日) は 12:30（1部）・17:30（2部）の2公演
+  // 売り切れにする立見：milkSold が '1'＝第1（11/22 17:30）、'12'＝第1・第2、'123'＝立見すべて、'none'＝なし
+  const milkSoldKeys = { none: [], '1': ['M22B'], '12': ['M22B', 'M22A'], '123': ['M22B', 'M22A', 'M21'] }[cfg.milkSold || '1'] || [];
+  const SHOWS = MILK ? [
+    { ymd: '20991121', disp: '2099/11/21(土)', open: '17:00', start: '18:00', key: 'M21', sold: false },
+    { ymd: '20991122', disp: '2099/11/22(日)', open: '11:30', start: '12:30', key: 'M22A', sold: false },
+    { ymd: '20991122', disp: '2099/11/22(日)', open: '16:30', start: '17:30', key: 'M22B', sold: false },
+  ] : [
     { ymd: '20991128', disp: '2099/11/28(土)', open: '17:00', start: '18:00', key: 'P28', sold: cfg.sold28 },
     ...(cfg.twoShows ? [{ ymd: '20991129', disp: '2099/11/29(日)', open: '11:30', start: '12:30', key: 'P29A', sold: !!cfg.soldShow1 }] : []),
     { ymd: '20991129', disp: '2099/11/29(日)', open: '16:00', start: '17:00', key: 'P29', sold: cfg.sold29 },
@@ -126,18 +134,27 @@
   tag.className = 'Tag ' + (launched ? '-release' : '-before-release');
   if (launched) P.flowStart();
   // 備考（本物のM!LKと同じく、ここの書き方は実際の席種名と少し違う：「着席指定席」→ 実際は「指定席」）
-  if (cfg.seats4) document.getElementById('bikou').textContent =
+  if (MILK) {
+    document.querySelector('h1').textContent = 'サンプルアイドル ARENA TOUR（練習・M!LK型）';
+    document.getElementById('bikou').textContent = '【備考】＜ファミリー席＞中学生以下のお子様と満18歳以上の大人の同席が条件のお席です。＜着席指定席＞完全着席のお席です。立ってのご観覧は禁止させていただきます。※１回の予約で購入できる枚数は最大1枚です。';
+    // 最大1枚（本物と同じ）
+    document.querySelectorAll('#ticketselection-modal select option').forEach((o) => { if (Number(o.value) > 1) o.remove(); });
+  } else if (cfg.seats4) document.getElementById('bikou').textContent =
     '【備考】＜着席指定席＞完全着席のお席です。＜注釈付指定席＞ステージが見えづらいお席です。＜立ち位置指定＞立見でのご観覧となります。＜注釈付立ち位置指定＞立見で、ステージが見えづらい場合がございます。';
 
   // 席種（M!LKと同じ4種類。席種コードも本物と同じ）。「席種名を変える」設定では、備考の書き方と実際の名前がずれる練習になる
-  const SEATS = cfg.seats4 ? [
+  const SEATS = MILK ? [
+    { cd: '001', name: 'ファミリー席', price: '11,000' },
+    { cd: '002', name: '着席指定席', price: '11,000' },
+    { cd: '003', name: '立見', price: '11,000' },
+  ] : cfg.seats4 ? [
     { cd: '001', name: '指定席', price: '11,500' },
     { cd: '004', name: '注釈付指定席', price: '11,500' },
     { cd: '005', name: cfg.renameSeats ? '立見指定' : '立ち位置指定', price: '11,000' },
     { cd: '006', name: cfg.renameSeats ? '注釈付立見指定' : '注釈付立ち位置指定', price: '11,000' },
   ] : [{ cd: '001', name: '全席指定', price: '8,800' }];
   const soldSeats = Array.isArray(cfg.soldSeats) ? cfg.soldSeats : [];
-  const isSold = (d, seat) => !!d.sold || soldSeats.includes(`${d.key}|${seat.cd}`);
+  const isSold = (d, seat) => !!d.sold || soldSeats.includes(`${d.key}|${seat.cd}`) || (MILK && seat.cd === '003' && milkSoldKeys.includes(d.key));
   // 席の状態：発売前／売り切れ／在庫あり、Cは空（売り切れでも選べて「申し込みへ進む」で分かる）
   const statusOf = (d, seat) => !launched ? 'before-release' : MODE === 'C' ? '' : isSold(d, seat) ? 'sold-out' : 'release';
   const seatHtml = (d) => SEATS.map((seat) => {

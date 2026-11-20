@@ -44,7 +44,7 @@
     cfg.startAt = Date.now() + cfg.delaySec * 1000;
     P.set('cfg', cfg);
     P.reset();
-    location.href = 'order.html?gLcode=99999';
+    location.href = P.orderUrl();
   });
 })();
 </script>

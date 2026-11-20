@@ -12,8 +12,13 @@ window.P = (() => {
     question: false, longConfirm: true, itemAuth: false, noETicket: false,
     sorryWait: true, sorryKeepCart: false, startAt: 0,
     // 11/15版：開き直してもまたアクセス集中になる確率／サイトの「前のページに戻る」が古い画面に戻る／追加情報入力（同意のチェック）
-    reopenSorryRate: 0, sorryNoCookie: false, addInfo: false };
+    reopenSorryRate: 0, sorryNoCookie: false, addInfo: false,
+    // 11/21版：公演の形。'basic'＝今までの練習公演（11/28・11/29）、'milk'＝M!LK 73512 と同じ（11/21 18:00・11/22 12:30／17:30、ファミリー席・着席指定席・立見、最大1枚）
+    layout: 'basic', milkSold: '1' };
   const cfg = () => Object.assign({}, DEFAULT, get('cfg', {}));
+  // 練習公演の Lコード（案内版の希望の設定と対応。99999＝今までの練習公演、99998＝M!LK型）
+  const lcode = () => (cfg().layout === 'milk' ? '99998' : '99999');
+  const orderUrl = () => 'order.html?gLcode=' + lcode();
   const chance = (pct) => Math.random() * 100 < Number(pct || 0);
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const rand = (a, b) => a + Math.random() * (b - a);
@@ -30,7 +35,7 @@ window.P = (() => {
 
   // 本物と同じく、アクセス集中の画面は「直前の公演ページのURL」をクッキーに覚えて戻れるようにする
   const toSorry = () => {
-    const url = location.origin + location.pathname.replace(/[^/]*$/, '') + 'order.html?gLcode=99999';
+    const url = location.origin + location.pathname.replace(/[^/]*$/, '') + orderUrl();
     // 設定「古い画面に戻る」がオンのときはクッキーを残さない（本物でもクッキーがないことがあり、そのときはブラウザの「戻る」と同じ動きになる）
     if (cfg().sorryNoCookie) document.cookie = 'ScheduleUrl=;path=/;max-age=0';
     else document.cookie = 'ScheduleUrl=' + encodeURIComponent(url) + ';path=/;max-age=600';
@@ -65,5 +70,5 @@ window.P = (() => {
   window.addEventListener('pagehide', wipe);
   window.addEventListener('pageshow', (e) => { if (e.persisted) wipe(); });
 
-  return { get, set, del, sget, sset, sdel, cfg, chance, sleep, rand, mark, flowStart, toSorry, submit, afterLogin, reset, openModal, closeModal };
+  return { get, set, del, sget, sset, sdel, cfg, lcode, orderUrl, chance, sleep, rand, mark, flowStart, toSorry, submit, afterLogin, reset, openModal, closeModal };
 })();

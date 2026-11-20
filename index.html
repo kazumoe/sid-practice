@@ -16,10 +16,22 @@
 
   <h2>かんたん設定（本番で起きた形をまとめて入れる）</h2>
   <p class="filler">押すと下の設定がその形に変わります（そのあと自分で変えてもよい）。最後に「練習を始める」を押してください。</p>
+  <button type="button" class="Button preset" data-preset="milk">11/21 M!LK型：第1希望の立見は申し込むと予約枚数終了 → 第2希望へ（追加情報入力あり）</button>
   <button type="button" class="Button preset" data-preset="spyair">11/15 SPYAIR型：第1希望は申し込むと予約枚数終了 → 次の希望へ</button>
   <button type="button" class="Button preset" data-preset="navillera">11/14 ナビレラ型：混み合っています＋アクセス集中が続く</button>
   <button type="button" class="Button preset" data-preset="smooth">すんなり型：じゃまなし（タップの速さだけを測る）</button>
   <p class="filler" id="presetMsg"></p>
+
+  <h2>公演の形</h2>
+  <label class="choice"><input type="radio" name="layout" value="basic"> 今までの練習公演（11/28・11/29。下の「席種」「売り切れにする席」の設定を使う）</label>
+  <label class="choice"><input type="radio" name="layout" value="milk"> M!LK型（11/21 本番と同じ形：11/21(土) 18:00、11/22(日) 12:30・17:30。席種はファミリー席・着席指定席・立見。最大1枚）</label>
+  <label class="choice">M!LK型で売り切れにする立見
+    <select id="milkSold" style="width:auto">
+      <option value="none">なし（第1希望がそのまま取れる）</option>
+      <option value="1">第1（11/22 17:30）だけ</option>
+      <option value="12">第1・第2（11/22 の両方）</option>
+      <option value="123">立見すべて（着席指定席へ回る）</option>
+    </select></label>
 
   <h2>発売までの時間</h2>
   <label class="choice">開始ボタンを押してから <input id="delaySec" type="number" min="5" max="600" style="width:5em"> 秒後に発売</label>
@@ -70,10 +82,15 @@
   grid.innerHTML = '<tr><td></td>' + SHOWN.map(([, n]) => `<td style="font-size:12px;text-align:center">${n}</td>`).join('') + '</tr>' +
     SEATN.map(([cd, n]) => `<tr><td style="font-size:12px">${n}</td>` +
       SHOWN.map(([k]) => `<td style="text-align:center"><input type="checkbox" class="soldSeat" value="${k}|${cd}"${(c.soldSeats || []).includes(`${k}|${cd}`) ? ' checked' : ''}></td>`).join('') + '</tr>').join('');
+  document.querySelector(`input[name=layout][value=${c.layout === 'milk' ? 'milk' : 'basic'}]`).checked = true;
+  document.getElementById('milkSold').value = c.milkSold || '1';
   const mode0 = ['A', 'B', 'C'].includes(c.stockMode) ? c.stockMode : (c.blankStock ? 'C' : 'B');
   document.querySelector(`input[name=stockMode][value=${mode0}]`).checked = true;
   // かんたん設定：本番で起きた形を、下の設定にまとめて入れる（入れるだけ。始めるのは「練習を始める」）
   const PRESETS = {
+    // 11/21 M!LK（73512）と同じ形。在庫の欄は空（申し込むまで分からない）、第1希望の立見は予約枚数終了、追加情報入力あり、少し混む
+    milk: { name: '11/21 M!LK型', layout: 'milk', milkSold: '1', num: { sorryRate: 20, busyRate: 0, reopenSorryRate: 20 }, on: ['longConfirm', 'sorryWait', 'addInfo'],
+      off: ['needLogin', 'sold29', 'sold28', 'hideSold', 'twoShows', 'renameSeats', 'itemAuth', 'noETicket', 'question', 'slowRes', 'sorryNoCookie', 'sorryKeepCart'], mode: 'C', sold: [] },
     // 第1希望（11/29 立ち位置指定）は、申し込むと「予約枚数終了」。在庫の欄は空（タブを押しても分からない）
     spyair: { name: '11/15 SPYAIR型', num: { sorryRate: 0, busyRate: 0, reopenSorryRate: 0 }, on: ['seats4', 'longConfirm'],
       off: ['needLogin', 'sold29', 'sold28', 'hideSold', 'twoShows', 'renameSeats', 'itemAuth', 'noETicket', 'question', 'slowRes', 'sorryNoCookie', 'addInfo'], mode: 'C', sold: ['P29|005'] },
@@ -89,6 +106,8 @@
     p.off.forEach((k) => { document.getElementById(k).checked = false; });
     document.querySelector(`input[name=stockMode][value=${p.mode}]`).checked = true;
     document.querySelectorAll('.soldSeat').forEach((x) => { x.checked = p.sold.includes(x.value); });
+    document.querySelector(`input[name=layout][value=${p.layout || 'basic'}]`).checked = true;
+    if (p.milkSold) document.getElementById('milkSold').value = p.milkSold;
     document.getElementById('presetMsg').textContent = `「${p.name}」の設定を入れました。下の「練習を始める」を押してください。`;
   }));
   document.getElementById('start').addEventListener('click', () => {
@@ -100,12 +119,13 @@
       soldShow1: b('soldShow1'), seats4: b('seats4'), renameSeats: b('renameSeats'),
       itemAuth: b('itemAuth'), noETicket: b('noETicket'), question: b('question'), longConfirm: b('longConfirm'), sorryWait: b('sorryWait'), sorryKeepCart: b('sorryKeepCart'),
       reopenSorryRate: v('reopenSorryRate'), sorryNoCookie: b('sorryNoCookie'), addInfo: b('addInfo'),
+      layout: document.querySelector('input[name=layout]:checked')?.value || 'basic', milkSold: document.getElementById('milkSold').value,
       soldSeats: [...document.querySelectorAll('.soldSeat:checked')].map((x) => x.value) };
     cfg.blankStock = cfg.stockMode === 'C';
     cfg.startAt = Date.now() + cfg.delaySec * 1000;
     P.set('cfg', cfg);
     P.reset();
-    location.href = 'order.html?gLcode=99999';
+    location.href = P.orderUrl();
   });
 </script>
 </body>

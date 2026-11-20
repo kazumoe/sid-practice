@@ -22,7 +22,7 @@
   (() => {
     const cart = P.get('cart', null) || {};
     const data = { pf_key: [cart.key || ''], pf_date: [cart.ymd || ''], seat_type_cd: [cart.seatCd || '001'], tkt_cnt: [[cart.count || '1']] };
-    document.getElementById('back').setAttribute('href', 'order.html?gLcode=99999&c_SEARCH_TICKET_DATA=' + encodeURIComponent(JSON.stringify(data)));
+    document.getElementById('back').setAttribute('href', P.orderUrl() + '&c_SEARCH_TICKET_DATA=' + encodeURIComponent(JSON.stringify(data)));
   })();
 </script>
 </body>
