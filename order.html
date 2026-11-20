@@ -144,9 +144,11 @@
 
   // 席種（M!LKと同じ4種類。席種コードも本物と同じ）。「席種名を変える」設定では、備考の書き方と実際の名前がずれる練習になる
   const SEATS = MILK ? [
-    { cd: '001', name: 'ファミリー席', price: '11,000' },
-    { cd: '002', name: '着席指定席', price: '11,000' },
-    { cd: '003', name: '立見', price: '11,000' },
+    // 本番（11/22 17:30 の発売前のタブ）と同じ4つ・同じ並び。席種コードは練習用
+    { cd: '001', name: '指定席', price: '11,500' },
+    { cd: '002', name: '着席指定席', price: '11,500' },
+    { cd: '003', name: '注釈付指定席', price: '11,500' },
+    { cd: '004', name: '立見', price: '11,000' },
   ] : cfg.seats4 ? [
     { cd: '001', name: '指定席', price: '11,500' },
     { cd: '004', name: '注釈付指定席', price: '11,500' },
@@ -154,7 +156,7 @@
     { cd: '006', name: cfg.renameSeats ? '注釈付立見指定' : '注釈付立ち位置指定', price: '11,000' },
   ] : [{ cd: '001', name: '全席指定', price: '8,800' }];
   const soldSeats = Array.isArray(cfg.soldSeats) ? cfg.soldSeats : [];
-  const isSold = (d, seat) => !!d.sold || soldSeats.includes(`${d.key}|${seat.cd}`) || (MILK && seat.cd === '003' && milkSoldKeys.includes(d.key));
+  const isSold = (d, seat) => !!d.sold || soldSeats.includes(`${d.key}|${seat.cd}`) || (MILK && seat.name === '立見' && milkSoldKeys.includes(d.key));
   // 席の状態：発売前／売り切れ／在庫あり、Cは空（売り切れでも選べて「申し込みへ進む」で分かる）
   const statusOf = (d, seat) => !launched ? 'before-release' : MODE === 'C' ? '' : isSold(d, seat) ? 'sold-out' : 'release';
   const seatHtml = (d) => SEATS.map((seat) => {
